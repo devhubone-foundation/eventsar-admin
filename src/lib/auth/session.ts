@@ -1,18 +1,13 @@
-// Stub — real implementation in Step 2
+// src/lib/auth/session.ts
+import { cookies } from "next/headers";
 
-export type Session = {
-  userId?: string;
-  role?: string;
-};
+export const SESSION_COOKIE_NAME = "access_token";
 
-export async function getSession(): Promise<Session | null> {
-  return null;
+export async function getSessionToken(): Promise<string | null> {
+  const jar = await cookies();
+  return jar.get(SESSION_COOKIE_NAME)?.value ?? null;
 }
 
-export async function login(_username: string, _password: string) {
-  throw new Error("login not implemented yet (Step 2)");
-}
-
-export async function logout() {
-  throw new Error("logout not implemented yet (Step 2)");
+export async function isAuthed(): Promise<boolean> {
+  return Boolean(await getSessionToken());
 }

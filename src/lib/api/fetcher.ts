@@ -1,8 +1,26 @@
-// Stub — real implementation in Step 3
+import { config } from "@/lib/config";
 
-export async function apiFetch(
-  _path: string,
-  _options?: RequestInit
-): Promise<any> {
-  throw new Error("apiFetch not implemented yet (Step 3)");
+export async function apiGet(path: string) {
+  const url = `${config.apiBaseUrl}${path}`;
+
+  const res = await fetch(url, {
+    method: "GET",
+    // IMPORTANT for future cookie auth:
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  const text = await res.text();
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status}: ${typeof data === "string" ? data : JSON.stringify(data)}`);
+  }
+
+  return data;
 }

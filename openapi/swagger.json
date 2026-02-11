@@ -1,0 +1,3224 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "description": "Check the health of the application",
+        "operationId": "HealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Health check",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/api/user/register": {
+      "post": {
+        "operationId": "UserController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "409": {
+            "description": "Username already exists"
+          }
+        },
+        "summary": "Register a new user",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/login": {
+      "post": {
+        "operationId": "UserController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logged in successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Invalid username or password"
+          }
+        },
+        "summary": "Login a user",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/all": {
+      "get": {
+        "operationId": "UserController_getAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Users found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get all users",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/user/role": {
+      "post": {
+        "operationId": "UserController_changeRole",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserChangeRoleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User role changed"
+          },
+          "400": {
+            "description": "Invalid user or role"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Change a user's role",
+        "tags": [
+          "User"
+        ]
+      }
+    },
+    "/api/admin/upload/image": {
+      "post": {
+        "operationId": "UploadController_uploadImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "scope",
+                  "file"
+                ],
+                "properties": {
+                  "scope": {
+                    "type": "string",
+                    "enum": [
+                      "EVENT",
+                      "SPONSOR",
+                      "GLOBAL"
+                    ],
+                    "example": "EVENT"
+                  },
+                  "eventSlug": {
+                    "type": "string",
+                    "example": "sofia-tech-expo-2026",
+                    "nullable": true
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Tracking marker image",
+                    "nullable": true
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "image_id": 12,
+                    "storage_path": "events/sofia-tech-expo-2026/images/uuid.png"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Upload failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Upload an image (creates Image record)",
+        "tags": [
+          "admin-upload"
+        ]
+      }
+    },
+    "/api/admin/upload/model": {
+      "post": {
+        "operationId": "UploadController_uploadModel",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "eventSlug",
+                  "type",
+                  "file"
+                ],
+                "properties": {
+                  "eventSlug": {
+                    "type": "string",
+                    "example": "sofia-tech-expo-2026"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "WORLD_AR",
+                      "FACE",
+                      "IMAGE_TRACKING"
+                    ],
+                    "example": "WORLD_AR"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Robot Detective v1"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded model",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "model_id": 5,
+                    "storage_path": "events/sofia-tech-expo-2026/models/uuid.glb"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Upload failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Upload a GLB model (creates Model record)",
+        "tags": [
+          "admin-upload"
+        ]
+      }
+    },
+    "/api/admin/images": {
+      "get": {
+        "operationId": "ImageAdminController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "example": "20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search query (matches name OR storage_path, case-insensitive)",
+            "schema": {
+              "example": "marker",
+              "type": "string"
+            }
+          },
+          {
+            "name": "mime_type",
+            "required": false,
+            "in": "query",
+            "description": "Exact mime type filter",
+            "schema": {
+              "example": "image/png",
+              "type": "string"
+            }
+          },
+          {
+            "name": "mime_prefix",
+            "required": false,
+            "in": "query",
+            "description": "Mime prefix filter (e.g. image/)",
+            "schema": {
+              "example": "image/",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "description": "Created at >= createdFrom",
+            "schema": {
+              "example": "2026-01-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdTo",
+            "required": false,
+            "in": "query",
+            "description": "Created at <= createdTo",
+            "schema": {
+              "example": "2026-02-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "created_at",
+              "enum": [
+                "created_at",
+                "name"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "page": 1,
+                    "pageSize": 20,
+                    "total": 2,
+                    "items": [
+                      {
+                        "image_id": 12,
+                        "name": "Tracking marker image",
+                        "storage_path": "events/sofia-tech-expo-2026/images/uuid.png",
+                        "mime_type": "image/png",
+                        "width": null,
+                        "height": null,
+                        "created_at": "2026-02-09T10:00:00.000Z",
+                        "updated_at": "2026-02-09T10:00:00.000Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List images (filters + pagination + search + sort)",
+        "tags": [
+          "admin-images"
+        ]
+      }
+    },
+    "/api/admin/images/{id}": {
+      "get": {
+        "operationId": "ImageAdminController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Image"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get image by id",
+        "tags": [
+          "admin-images"
+        ]
+      },
+      "patch": {
+        "operationId": "ImageAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateImageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated image"
+          },
+          "400": {
+            "description": "Invalid payload"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update image metadata (name/width/height)",
+        "tags": [
+          "admin-images"
+        ]
+      },
+      "delete": {
+        "operationId": "ImageAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted image",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "image_id": 12,
+                    "storage_path": "events/.../uuid.png"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Delete failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Delete image (deletes S3 object + DB row)",
+        "tags": [
+          "admin-images"
+        ]
+      }
+    },
+    "/api/admin/models": {
+      "get": {
+        "operationId": "ModelAdminController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "description": "Page size",
+            "schema": {
+              "example": "20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search query (matches name OR storage_path, case-insensitive)",
+            "schema": {
+              "example": "robot",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Filter by model type",
+            "schema": {
+              "example": "WORLD_AR",
+              "enum": [
+                "WORLD_AR",
+                "FACE",
+                "IMAGE_TRACKING"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "description": "Created at >= createdFrom",
+            "schema": {
+              "example": "2026-01-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdTo",
+            "required": false,
+            "in": "query",
+            "description": "Created at <= createdTo",
+            "schema": {
+              "example": "2026-02-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "created_at",
+              "enum": [
+                "created_at",
+                "name",
+                "type"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "page": 1,
+                    "pageSize": 20,
+                    "total": 1,
+                    "items": [
+                      {
+                        "model_id": 5,
+                        "name": "Robot Detective v1",
+                        "version": 1,
+                        "type": "WORLD_AR",
+                        "storage_path": "events/sofia-tech-expo-2026/models/uuid.glb",
+                        "file_size_bytes": "1234567",
+                        "created_at": "2026-02-09T10:00:00.000Z",
+                        "updated_at": "2026-02-09T10:00:00.000Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List models (filters + pagination + search + sort)",
+        "tags": [
+          "admin-models"
+        ]
+      }
+    },
+    "/api/admin/models/{id}": {
+      "get": {
+        "operationId": "ModelAdminController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Model"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get model by id",
+        "tags": [
+          "admin-models"
+        ]
+      },
+      "patch": {
+        "operationId": "ModelAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModelDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated model"
+          },
+          "400": {
+            "description": "Invalid payload"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update model (rename/type). Auto-bumps version if (type,name) collides.",
+        "tags": [
+          "admin-models"
+        ]
+      },
+      "delete": {
+        "operationId": "ModelAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted model",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "model_id": 5,
+                    "storage_path": "events/.../uuid.glb"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Delete failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Delete model (only if unused). Deletes S3 object + DB row.",
+        "tags": [
+          "admin-models"
+        ]
+      }
+    },
+    "/api/admin/sponsors": {
+      "post": {
+        "operationId": "SponsorAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSponsorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created sponsor"
+          },
+          "400": {
+            "description": "Create failed"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create sponsor",
+        "tags": [
+          "admin-sponsors"
+        ]
+      },
+      "get": {
+        "operationId": "SponsorAdminController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search by name",
+            "schema": {
+              "example": "acme",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-01-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-02-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "created_at",
+              "enum": [
+                "created_at",
+                "name"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List sponsors (filters + pagination + search + sort)",
+        "tags": [
+          "admin-sponsors"
+        ]
+      }
+    },
+    "/api/admin/sponsors/{id}": {
+      "get": {
+        "operationId": "SponsorAdminController_getById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sponsor"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get sponsor by id",
+        "tags": [
+          "admin-sponsors"
+        ]
+      },
+      "patch": {
+        "operationId": "SponsorAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSponsorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated sponsor"
+          },
+          "400": {
+            "description": "Update failed"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update sponsor",
+        "tags": [
+          "admin-sponsors"
+        ]
+      },
+      "delete": {
+        "operationId": "SponsorAdminController_delete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "force",
+            "required": false,
+            "in": "query",
+            "description": "If true, allows deletion even if linked to ACTIVE events/experiences",
+            "schema": {
+              "example": "true",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted sponsor + usage summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "deleted": {
+                      "sponsor_id": 3,
+                      "name": "Acme"
+                    },
+                    "usage_before_delete": {
+                      "linked_events": 2,
+                      "linked_experiences": 5,
+                      "has_active_links": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Delete failed / blocked"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Delete sponsor (removes join rows). Blocks if linked to ACTIVE unless force=true.",
+        "tags": [
+          "admin-sponsors"
+        ]
+      }
+    },
+    "/api/admin/sponsors/{id}/usage": {
+      "get": {
+        "operationId": "SponsorAdminController_usage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usage summary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "sponsor_id": 3,
+                    "linked_events": 2,
+                    "linked_experiences": 5,
+                    "linked_active_events": 1,
+                    "linked_active_experiences": 2,
+                    "has_active_links": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get sponsor usage summary (events/experiences + active links)",
+        "tags": [
+          "admin-sponsors"
+        ]
+      }
+    },
+    "/api/admin/events": {
+      "post": {
+        "operationId": "EventAdminController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create event (status defaults to DRAFT). Code allowed.",
+        "tags": [
+          "admin-events"
+        ]
+      },
+      "get": {
+        "operationId": "EventAdminController_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "20",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "ACTIVE",
+              "enum": [
+                "ACTIVE",
+                "COMING_SOON",
+                "HIDDEN",
+                "DRAFT",
+                "ARCHIVED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search in slug and code (admin list)",
+            "schema": {
+              "example": "sofia",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-01-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "createdTo",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-02-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "created_at",
+              "enum": [
+                "created_at",
+                "slug",
+                "status"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List events (admin)",
+        "tags": [
+          "admin-events"
+        ]
+      }
+    },
+    "/api/admin/events/{id}": {
+      "get": {
+        "operationId": "EventAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get event by id (admin)",
+        "tags": [
+          "admin-events"
+        ]
+      },
+      "patch": {
+        "operationId": "EventAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Validation/unique failures"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update event (admin). Code allowed + normalized.",
+        "tags": [
+          "admin-events"
+        ]
+      }
+    },
+    "/api/admin/events/{id}/status": {
+      "patch": {
+        "operationId": "EventAdminController_setStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetEventStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Set event status (admin)",
+        "tags": [
+          "admin-events"
+        ]
+      }
+    },
+    "/api/admin/events/{id}/localizations/{language}": {
+      "put": {
+        "operationId": "EventAdminController_upsertLoc",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "language",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertEventLocalizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Upsert event localization (admin)",
+        "tags": [
+          "admin-events"
+        ]
+      }
+    },
+    "/api/admin/events/{id}/sponsors": {
+      "post": {
+        "operationId": "EventAdminController_addSponsor",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEventSponsorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Add sponsor to event",
+        "tags": [
+          "admin-events"
+        ]
+      }
+    },
+    "/api/admin/events/{id}/sponsors/{event_sponsor_id}": {
+      "patch": {
+        "operationId": "EventAdminController_updateSponsor",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "event_sponsor_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEventSponsorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update sponsor link for event",
+        "tags": [
+          "admin-events"
+        ]
+      },
+      "delete": {
+        "operationId": "EventAdminController_removeSponsor",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "event_sponsor_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Remove sponsor from event",
+        "tags": [
+          "admin-events"
+        ]
+      }
+    },
+    "/api/events": {
+      "get": {
+        "operationId": "EventController_list",
+        "parameters": [
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeComingSoon",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List events (public). Defaults to ACTIVE only. Optionally include COMING_SOON.",
+        "tags": [
+          "public-events"
+        ]
+      }
+    },
+    "/api/events/{slug}": {
+      "get": {
+        "operationId": "EventController_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get event by slug (public)",
+        "tags": [
+          "public-events"
+        ]
+      }
+    },
+    "/api/events/resolve-code": {
+      "post": {
+        "operationId": "EventController_resolve",
+        "parameters": [
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResolveCodeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resolved event"
+          }
+        },
+        "summary": "Resolve event by code (public). Returns only ACTIVE/COMING_SOON/HIDDEN. Never returns DRAFT.",
+        "tags": [
+          "public-events"
+        ]
+      }
+    },
+    "/api/events/{slug}/pack": {
+      "get": {
+        "operationId": "EventPackController_getPack",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Event pack (public): event + sponsors + ACTIVE experiences + resolved watermarks",
+        "tags": [
+          "public-pack"
+        ]
+      }
+    },
+    "/api/admin/events/{eventId}/experiences": {
+      "post": {
+        "operationId": "ExperienceAdminController_create",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExperienceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create experience under event",
+        "tags": [
+          "admin-experiences"
+        ]
+      },
+      "get": {
+        "operationId": "ExperienceAdminController_list",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "50",
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Search slug (admin)",
+            "schema": {
+              "example": "robot",
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "DRAFT",
+                "ACTIVE",
+                "HIDDEN",
+                "ARCHIVED"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "WORLD_AR_GLB",
+                "FACE_GLB",
+                "IMAGE_TRACKING_AR"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "sort_order",
+              "enum": [
+                "created_at",
+                "sort_order",
+                "slug"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "List experiences for event (admin)",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/admin/experiences/{id}": {
+      "get": {
+        "operationId": "ExperienceAdminController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get experience by id (admin)",
+        "tags": [
+          "admin-experiences"
+        ]
+      },
+      "patch": {
+        "operationId": "ExperienceAdminController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExperienceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update experience (admin)",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/admin/experiences/{id}/status": {
+      "patch": {
+        "operationId": "ExperienceAdminController_setStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetExperienceStatusDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Set experience status (admin)",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/admin/events/{eventId}/experiences/reorder": {
+      "patch": {
+        "operationId": "ExperienceAdminController_reorder",
+        "parameters": [
+          {
+            "name": "eventId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderExperiencesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Reorder experiences",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/admin/experiences/{id}/localizations/{language}": {
+      "put": {
+        "operationId": "ExperienceAdminController_upsertLoc",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "language",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertExperienceLocalizationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Upsert experience localization",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/admin/experiences/{id}/sponsors": {
+      "post": {
+        "operationId": "ExperienceAdminController_addSponsor",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddExperienceSponsorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Add sponsor to experience",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/admin/experiences/{id}/sponsors/{experience_sponsor_id}": {
+      "patch": {
+        "operationId": "ExperienceAdminController_updateSponsor",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "experience_sponsor_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExperienceSponsorDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update experience sponsor link (primary, watermark, order)",
+        "tags": [
+          "admin-experiences"
+        ]
+      },
+      "delete": {
+        "operationId": "ExperienceAdminController_removeSponsor",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "experience_sponsor_id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Remove sponsor from experience",
+        "tags": [
+          "admin-experiences"
+        ]
+      }
+    },
+    "/api/events/{slug}/experiences": {
+      "get": {
+        "operationId": "ExperienceController_list",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "List ACTIVE experiences for event (public)",
+        "tags": [
+          "public-experiences"
+        ]
+      }
+    },
+    "/api/events/{eventSlug}/experiences/{experienceSlug}": {
+      "get": {
+        "operationId": "ExperienceController_resolve",
+        "parameters": [
+          {
+            "name": "eventSlug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "experienceSlug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lang",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Resolve experience by slug (public). Returns ACTIVE or HIDDEN, never DRAFT/ARCHIVED.",
+        "tags": [
+          "public-experiences"
+        ]
+      }
+    },
+    "/api/metrics/track": {
+      "post": {
+        "operationId": "MetricsController_track",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TrackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tracked"
+          }
+        },
+        "summary": "Track a metric event (public)",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/api/admin/events/{id}/metrics": {
+      "get": {
+        "operationId": "MetricsController_getEventMetrics",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-02-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "2026-02-11T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "CAPTURE",
+              "enum": [
+                "EVENT_OPEN",
+                "EXPERIENCE_OPEN",
+                "CAPTURE"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "experienceSlug",
+            "required": false,
+            "in": "query",
+            "description": "Optional filter for experience metrics by slug (admin)",
+            "schema": {
+              "example": "robot-detective",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get daily metrics for event (admin)",
+        "tags": [
+          "metrics"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "EventsAR API",
+    "description": "API for EventsAR application",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "Bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Authorization bearer token"
+      }
+    },
+    "schemas": {
+      "UserCreateDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username of the user",
+            "example": "gosho"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "UserLoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "The username of the user",
+            "example": "gosho"
+          },
+          "password": {
+            "type": "string",
+            "description": "The password of the user",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "UserChangeRoleDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "number",
+            "description": "The user id",
+            "example": 10
+          },
+          "role": {
+            "type": "string",
+            "description": "The role of the user",
+            "example": "ADMIN"
+          }
+        },
+        "required": [
+          "userId",
+          "role"
+        ]
+      },
+      "UpdateImageDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Updated name"
+          },
+          "width": {
+            "type": "number",
+            "example": 1024
+          },
+          "height": {
+            "type": "number",
+            "example": 1024
+          }
+        }
+      },
+      "UpdateModelDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Robot Detective",
+            "description": "Rename model"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "WORLD_AR",
+              "FACE",
+              "IMAGE_TRACKING"
+            ],
+            "example": "WORLD_AR",
+            "description": "Change model type (will auto-bump version if needed)"
+          }
+        }
+      },
+      "WatermarkConfigDto": {
+        "type": "object",
+        "properties": {
+          "image_id": {
+            "type": "number",
+            "example": 15,
+            "description": "Image.image_id"
+          },
+          "position": {
+            "type": "string",
+            "enum": [
+              "bottom_right",
+              "bottom_left",
+              "top_right",
+              "top_left",
+              "center"
+            ],
+            "example": "bottom_right"
+          },
+          "scale": {
+            "type": "number",
+            "example": 1
+          },
+          "opacity": {
+            "type": "number",
+            "example": 1
+          }
+        }
+      },
+      "CreateSponsorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Acme Corp"
+          },
+          "website_url": {
+            "type": "string",
+            "example": "https://acme.com"
+          },
+          "logo_image_id": {
+            "type": "number",
+            "example": 12,
+            "description": "Image.image_id for logo"
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "description": "Reference an existing WatermarkConfig to reuse",
+            "example": 3
+          },
+          "watermark": {
+            "description": "Inline watermark config. If provided (and watermark_config_id not provided), a new WatermarkConfig row is created.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WatermarkConfigDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateSponsorDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Acme Corp Updated"
+          },
+          "website_url": {
+            "type": "string",
+            "example": "https://acme.com"
+          },
+          "logo_image_id": {
+            "type": "number",
+            "example": 12
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "description": "Set to id to reuse an existing config. Set null to clear.",
+            "example": 3
+          },
+          "watermark": {
+            "description": "Inline watermark config. If provided, creates a NEW WatermarkConfig and points sponsor to it.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WatermarkConfigDto"
+              }
+            ]
+          }
+        }
+      },
+      "CreateEventDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "sofia-tech-expo-2026"
+          },
+          "code": {
+            "type": "string",
+            "description": "Optional code, normalized to uppercase. 4-12 A-Z0-9. null clears.",
+            "example": "SOFIA2026"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "COMING_SOON",
+              "HIDDEN",
+              "DRAFT",
+              "ARCHIVED"
+            ],
+            "example": "DRAFT"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Europe/Sofia"
+          },
+          "website_url": {
+            "type": "string",
+            "example": "https://event.com"
+          },
+          "support_url": {
+            "type": "string",
+            "example": "https://event.com/support"
+          },
+          "contact_email": {
+            "type": "string",
+            "example": "support@event.com"
+          },
+          "contact_phone": {
+            "type": "string",
+            "example": "+359888123456"
+          },
+          "logo_image_id": {
+            "type": "number",
+            "example": 10
+          },
+          "background_image_id": {
+            "type": "number",
+            "example": 11
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "description": "Default event watermark config (used in resolution)",
+            "example": 3
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "INDOOR",
+              "OUTDOOR",
+              "MIXED"
+            ],
+            "example": "INDOOR"
+          },
+          "start_at": {
+            "type": "string",
+            "example": "2026-02-15T10:00:00.000Z"
+          },
+          "end_at": {
+            "type": "string",
+            "example": "2026-02-15T18:00:00.000Z"
+          },
+          "about_url": {
+            "type": "string",
+            "example": "https://event.com/about"
+          },
+          "rules_url": {
+            "type": "string",
+            "example": "https://event.com/rules"
+          },
+          "terms_url": {
+            "type": "string",
+            "example": "https://event.com/terms"
+          },
+          "lat": {
+            "type": "number",
+            "example": 42.6977
+          },
+          "lng": {
+            "type": "number",
+            "example": 23.3219
+          }
+        },
+        "required": [
+          "slug"
+        ]
+      },
+      "UpdateEventDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Optional code, normalized to uppercase. 4-12 A-Z0-9. null clears.",
+            "example": "SOFIA2026"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Europe/Sofia"
+          },
+          "website_url": {
+            "type": "string",
+            "example": "https://event.com"
+          },
+          "support_url": {
+            "type": "string",
+            "example": "https://event.com/support"
+          },
+          "contact_email": {
+            "type": "string",
+            "example": "support@event.com"
+          },
+          "contact_phone": {
+            "type": "string",
+            "example": "+359888123456"
+          },
+          "logo_image_id": {
+            "type": "number",
+            "example": 10
+          },
+          "background_image_id": {
+            "type": "number",
+            "example": 11
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "example": 3
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "INDOOR",
+              "OUTDOOR",
+              "MIXED"
+            ],
+            "example": "OUTDOOR"
+          },
+          "start_at": {
+            "type": "string",
+            "example": "2026-02-15T10:00:00.000Z"
+          },
+          "end_at": {
+            "type": "string",
+            "example": "2026-02-15T18:00:00.000Z"
+          },
+          "about_url": {
+            "type": "string",
+            "example": "https://event.com/about"
+          },
+          "rules_url": {
+            "type": "string",
+            "example": "https://event.com/rules"
+          },
+          "terms_url": {
+            "type": "string",
+            "example": "https://event.com/terms"
+          },
+          "lat": {
+            "type": "number",
+            "example": 42.6977
+          },
+          "lng": {
+            "type": "number",
+            "example": 23.3219
+          }
+        }
+      },
+      "SetEventStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "COMING_SOON",
+              "HIDDEN",
+              "DRAFT",
+              "ARCHIVED"
+            ],
+            "example": "ACTIVE"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "UpsertEventLocalizationDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Sofia Tech Expo 2026"
+          },
+          "description": {
+            "type": "string",
+            "example": "A fun expo...",
+            "nullable": true
+          },
+          "venue_name": {
+            "type": "string",
+            "example": "Expo Hall"
+          },
+          "address": {
+            "type": "string",
+            "example": "1 Main Street"
+          },
+          "city": {
+            "type": "string",
+            "example": "Sofia"
+          },
+          "country": {
+            "type": "string",
+            "example": "Bulgaria"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "AddEventSponsorDto": {
+        "type": "object",
+        "properties": {
+          "sponsor_id": {
+            "type": "number",
+            "example": 3
+          },
+          "tier": {
+            "type": "string",
+            "example": "Gold"
+          },
+          "sort_order": {
+            "type": "number",
+            "example": 0
+          },
+          "featured": {
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "sponsor_id"
+        ]
+      },
+      "UpdateEventSponsorDto": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "type": "string",
+            "example": "Platinum"
+          },
+          "sort_order": {
+            "type": "number",
+            "example": 1
+          },
+          "featured": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ResolveCodeDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "example": "SOFIA2026"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "CreateExperienceDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "robot-detector"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "WORLD_AR_GLB",
+              "FACE_GLB",
+              "IMAGE_TRACKING_AR"
+            ],
+            "example": "IMAGE_TRACKING_AR"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "HIDDEN",
+              "ARCHIVED"
+            ],
+            "example": "DRAFT"
+          },
+          "sort_order": {
+            "type": "number",
+            "example": 0
+          },
+          "thumbnail_image_id": {
+            "type": "number",
+            "example": 12
+          },
+          "model_id": {
+            "type": "number",
+            "example": 5
+          },
+          "tracking_image_id": {
+            "type": "number",
+            "example": 33
+          },
+          "physical_width_meters": {
+            "type": "number",
+            "example": 0.12,
+            "description": "Printed marker width in meters"
+          },
+          "placement_position_offset": {
+            "type": "object",
+            "example": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "placement_rotation_euler": {
+            "type": "object",
+            "example": {
+              "x": 0,
+              "y": 180,
+              "z": 0
+            }
+          },
+          "placement_scale": {
+            "type": "number",
+            "example": 1
+          },
+          "face_anchor": {
+            "type": "string",
+            "example": "HEAD"
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "description": "Reuse existing watermark config id",
+            "example": 3
+          }
+        },
+        "required": [
+          "slug",
+          "type"
+        ]
+      },
+      "UpdateExperienceDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "example": "robot-detector"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "WORLD_AR_GLB",
+              "FACE_GLB",
+              "IMAGE_TRACKING_AR"
+            ]
+          },
+          "thumbnail_image_id": {
+            "type": "number",
+            "example": 12
+          },
+          "model_id": {
+            "type": "number",
+            "example": 5
+          },
+          "tracking_image_id": {
+            "type": "number",
+            "example": 33
+          },
+          "physical_width_meters": {
+            "type": "number",
+            "example": 0.12
+          },
+          "placement_position_offset": {
+            "type": "object",
+            "example": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            }
+          },
+          "placement_rotation_euler": {
+            "type": "object",
+            "example": {
+              "x": 0,
+              "y": 180,
+              "z": 0
+            }
+          },
+          "placement_scale": {
+            "type": "number",
+            "example": 1
+          },
+          "face_anchor": {
+            "type": "string",
+            "example": "HEAD"
+          },
+          "allow_move": {
+            "type": "boolean",
+            "example": true
+          },
+          "allow_rotate": {
+            "type": "boolean",
+            "example": true
+          },
+          "allow_scale": {
+            "type": "boolean",
+            "example": true
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "example": 3
+          },
+          "watermark": {
+            "description": "Inline watermark config; creates a NEW WatermarkConfig and points experience to it",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WatermarkConfigDto"
+              }
+            ]
+          }
+        }
+      },
+      "SetExperienceStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "HIDDEN",
+              "ARCHIVED"
+            ],
+            "example": "ACTIVE"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ReorderExperiencesDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "example": [
+              {
+                "experience_id": 10,
+                "sort_order": 0
+              },
+              {
+                "experience_id": 11,
+                "sort_order": 1
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "UpsertExperienceLocalizationDto": {
+        "type": "object",
+        "properties": {
+          "display_name": {
+            "type": "string",
+            "example": "Robot Detective"
+          }
+        },
+        "required": [
+          "display_name"
+        ]
+      },
+      "AddExperienceSponsorDto": {
+        "type": "object",
+        "properties": {
+          "sponsor_id": {
+            "type": "number",
+            "example": 3
+          },
+          "is_primary": {
+            "type": "boolean",
+            "example": false
+          },
+          "sort_order": {
+            "type": "number",
+            "example": 0
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "description": "Reuse existing WatermarkConfig id (optional)",
+            "example": 10
+          },
+          "watermark": {
+            "description": "Inline watermark config. If provided, creates a NEW WatermarkConfig and points ExperienceSponsor to it.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WatermarkConfigDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sponsor_id"
+        ]
+      },
+      "UpdateExperienceSponsorDto": {
+        "type": "object",
+        "properties": {
+          "is_primary": {
+            "type": "boolean",
+            "example": true
+          },
+          "sort_order": {
+            "type": "number",
+            "example": 1
+          },
+          "watermark_config_id": {
+            "type": "number",
+            "description": "Set to id to reuse existing config. Set null to clear.",
+            "example": 10
+          },
+          "watermark": {
+            "description": "Inline watermark config. If provided, creates a NEW WatermarkConfig and points ExperienceSponsor to it.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WatermarkConfigDto"
+              }
+            ]
+          }
+        }
+      },
+      "TrackDto": {
+        "type": "object",
+        "properties": {
+          "event_slug": {
+            "type": "string",
+            "example": "sofia-tech-expo-2026"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "EVENT_OPEN",
+              "EXPERIENCE_OPEN",
+              "CAPTURE"
+            ],
+            "example": "EXPERIENCE_OPEN"
+          },
+          "experience_slug": {
+            "type": "string",
+            "example": "robot-detective"
+          }
+        },
+        "required": [
+          "event_slug",
+          "type"
+        ]
+      }
+    }
+  }
+}
