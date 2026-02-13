@@ -28,6 +28,8 @@
   "images.scope": "Scope",
   "images.open": "Open",
   "images.loadFailed": "Failed to load images",
+  "pagination.prev": "Prev",
+  "pagination.next": "Next",
 
   "picker.select": "Select",
   "picker.clear": "Clear",

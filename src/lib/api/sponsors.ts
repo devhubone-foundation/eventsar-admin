@@ -27,7 +27,11 @@ export async function listSponsors(query: SponsorListQuery) {
     sortBy: query.sortBy ?? "created_at",
     sortDir: query.sortDir ?? "desc",
   });
-  return apiClient<any>(`/api/admin/sponsors${qs}`);
+  return apiClient<unknown>(`/api/admin/sponsors${qs}`);
+}
+
+export async function getSponsor(id: string | number) {
+  return apiClient<unknown>(`/api/admin/sponsors/${id}`);
 }
 
 export type WatermarkDto = {
@@ -43,7 +47,7 @@ export async function createSponsor(payload: {
   logo_image_id: number;
   watermark?: WatermarkDto;
 }) {
-  return apiClient<any>(`/api/admin/sponsors`, {
+  return apiClient<unknown>(`/api/admin/sponsors`, {
     method: "POST",
     body: payload,
   });
@@ -59,7 +63,7 @@ export async function patchSponsor(
     watermark?: WatermarkDto | null;
   }
 ) {
-  return apiClient<any>(`/api/admin/sponsors/${sponsorId}`, {
+  return apiClient<unknown>(`/api/admin/sponsors/${sponsorId}`, {
     method: "PATCH",
     body: payload,
   });
