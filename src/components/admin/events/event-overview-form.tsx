@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { z } from "zod";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, useWatch, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMetaEnums } from "@/lib/meta/use-meta";
+import { EventMapPicker } from "@/components/admin/events/event-map-picker";
 
 // ✅ helper: empty string -> undefined, otherwise number
 const numOptional = z.preprocess((v) => {
@@ -72,6 +73,15 @@ function dateTimeLocalToIso(value: string | undefined): string | null {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
   return d.toISOString();
+}
+
+function toFiniteNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
+  }
+  return undefined;
 }
 
 export function EventOverviewForm({ event }: { event: any }) {
@@ -191,6 +201,19 @@ export function EventOverviewForm({ event }: { event: any }) {
   };
 
   const ENV_NONE = "__NONE__";
+  const [mapLatRaw, mapLngRaw] = useWatch({
+    control: form.control,
+    name: ["lat", "lng"],
+  });
+  const mapLat = toFiniteNumber(mapLatRaw);
+  const mapLng = toFiniteNumber(mapLngRaw);
+  const handleMapPick = useCallback(
+    (lat: number, lng: number) => {
+      form.setValue("lat", lat, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+      form.setValue("lng", lng, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+    },
+    [form]
+  );
 
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -315,14 +338,31 @@ export function EventOverviewForm({ event }: { event: any }) {
           )}
         </div>
 
+        <div className="space-y-1 md:col-span-2">
+          <Label>Map picker</Label>
+          <EventMapPicker lat={mapLat} lng={mapLng} onPick={handleMapPick} />
+        </div>
+
         <div className="space-y-1">
           <Label>Lat</Label>
-          <Input type="number" step="0.0001" {...form.register("lat")} />
+          <Input
+            type="number"
+            step="0.000001"
+            {...form.register("lat", {
+              setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+            })}
+          />
         </div>
 
         <div className="space-y-1">
           <Label>Lng</Label>
-          <Input type="number" step="0.0001" {...form.register("lng")} />
+          <Input
+            type="number"
+            step="0.000001"
+            {...form.register("lng", {
+              setValueAs: (v) => (v === "" || v === null || v === undefined ? undefined : Number(v)),
+            })}
+          />
         </div>
       </div>
 
