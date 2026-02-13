@@ -114,6 +114,9 @@ export function EventLocalizationsPanel({ event }: { event: any }) {
             <div className="space-y-1">
               <Label>{t("event.loc.name")}</Label>
               <Input {...enForm.register("name")} />
+              <p className="text-xs text-muted-foreground">
+                {t("event.loc.requiredBothHint")}
+              </p>
               {enForm.formState.errors.name && (
                 <p className="text-sm text-red-600">{String(enForm.formState.errors.name.message)}</p>
               )}
@@ -158,7 +161,7 @@ export function EventLocalizationsPanel({ event }: { event: any }) {
               <Label>{t("event.loc.name")}</Label>
               <Input {...bgForm.register("name")} />
               <p className="text-xs text-muted-foreground">
-                (Required) You need to fill both Bulgarian and English localizations for the app to work correctly.
+                {t("event.loc.requiredBothHint")}
               </p>
             </div>
 

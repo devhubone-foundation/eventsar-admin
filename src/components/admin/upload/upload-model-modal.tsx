@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 
-import { apiClient } from "@/lib/api/client";
 import { useMetaEnums } from "@/lib/meta/use-meta";
+import { useI18n } from "@/components/i18n-provider";
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,8 @@ async function uploadModel(formData: FormData) {
     data = { raw: text };
   }
 
-  const NONE = "__NONE__";
-
   if (!res.ok) {
-    throw new Error(data?.message ?? `Upload failed (${res.status})`);
+    throw new Error(data?.message ?? `UPLOAD_FAILED_STATUS:${res.status}`);
   }
   return data;
 }
@@ -48,6 +46,7 @@ export function UploadModelModal({
   defaultEventSlug: string;
   onUploaded: (modelId: number) => void;
 }) {
+  const { t } = useI18n();
   const meta = useMetaEnums();
   const types = meta.enums.Model_Type ?? [];
 
@@ -60,9 +59,9 @@ export function UploadModelModal({
 
   const mut = useMutation({
     mutationFn: async () => {
-      if (!eventSlug.trim()) throw new Error("eventSlug is required");
-      if (!type) throw new Error("type is required");
-      if (!file) throw new Error("file is required");
+      if (!eventSlug.trim()) throw new Error(t("upload.modelModal.eventSlugRequired"));
+      if (!type) throw new Error(t("upload.modelModal.typeRequired"));
+      if (!file) throw new Error(t("upload.modelModal.fileRequired"));
 
       const fd = new FormData();
       fd.set("eventSlug", eventSlug.trim());
@@ -74,13 +73,20 @@ export function UploadModelModal({
     onSuccess: (data) => {
       const modelId = data?.model_id;
       if (!modelId) {
-        toast.error("Upload succeeded but model_id missing");
+        toast.error(t("upload.modelModal.uploadedMissingModelId"));
         return;
       }
-      toast.success("Uploaded");
+      toast.success(t("upload.modelModal.uploaded"));
       onUploaded(Number(modelId));
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Upload failed"),
+    onError: (e) => {
+      if (e instanceof Error && e.message.startsWith("UPLOAD_FAILED_STATUS:")) {
+        const status = e.message.replace("UPLOAD_FAILED_STATUS:", "");
+        toast.error(`${t("upload.modelModal.uploadFailedStatusPrefix")}${status})`);
+        return;
+      }
+      toast.error(e instanceof Error ? e.message : t("toast.uploadFailed"));
+    },
   });
 
   function onDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -91,21 +97,21 @@ export function UploadModelModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Upload model</DialogTitle>
+          <DialogTitle>{t("upload.modelTitle")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-1">
-            <Label>Event slug</Label>
+            <Label>{t("upload.eventSlug")}</Label>
             <Input value={eventSlug} onChange={(e) => setEventSlug(e.target.value)} />
           </div>
 
           <div className="space-y-1">
-            <Label>Type</Label>
+            <Label>{t("models.type")}</Label>
             <Select value={type} onValueChange={setType}>
-              <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t("upload.modelModal.selectType")} /></SelectTrigger>
               <SelectContent>
                 {types.map((x) => (
                   <SelectItem key={x} value={x}>{x}</SelectItem>
@@ -115,8 +121,8 @@ export function UploadModelModal({
           </div>
 
           <div className="space-y-1">
-            <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Robot Detective v1" />
+            <Label>{t("upload.nameOptional")}</Label>
+            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t("upload.modelModal.namePlaceholder")} />
           </div>
 
           <div
@@ -126,11 +132,11 @@ export function UploadModelModal({
           >
             <div className="flex items-center justify-between gap-3">
               <div>
-                <div className="font-medium text-foreground">Drag & drop .glb here</div>
-                <div className="text-xs">or click to choose a file</div>
+                <div className="font-medium text-foreground">{t("upload.modelModal.dropTitle")}</div>
+                <div className="text-xs">{t("upload.modelModal.dropHint")}</div>
               </div>
               <Button type="button" variant="outline" onClick={() => inputRef.current?.click()}>
-                Choose file
+                {t("dropzone.chooseFile")}
               </Button>
             </div>
 
@@ -142,16 +148,16 @@ export function UploadModelModal({
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
 
-            {file && <div className="mt-3 text-xs">Selected: {file.name}</div>}
+            {file && <div className="mt-3 text-xs">{t("dropzone.selected")}: {file.name}</div>}
           </div>
         </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button type="button" onClick={() => mut.mutate()} disabled={mut.isPending}>
-            {mut.isPending ? "Uploading..." : "Upload"}
+            {mut.isPending ? t("upload.uploading") : t("upload.uploadModel")}
           </Button>
         </DialogFooter>
       </DialogContent>
