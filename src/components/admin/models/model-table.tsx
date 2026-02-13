@@ -25,12 +25,12 @@ export function ModelTable({
       <table className="w-full text-sm">
         <thead className="bg-muted/50">
         <tr className="text-left">
-          <th className="p-3">ID</th>
-          <th className="p-3">Name</th>
-          <th className="p-3">Type</th>
-          <th className="p-3">Version</th>
-          <th className="p-3">Size</th>
-          <th className="p-3">Path</th>
+          <th className="p-3">{t("models.table.id")}</th>
+          <th className="p-3">{t("models.table.name")}</th>
+          <th className="p-3">{t("models.table.type")}</th>
+          <th className="p-3">{t("models.table.version")}</th>
+          <th className="p-3">{t("models.table.size")}</th>
+          <th className="p-3">{t("models.table.path")}</th>
           <th className="p-3"></th>
         </tr>
         </thead>

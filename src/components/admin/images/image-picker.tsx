@@ -6,8 +6,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { qk } from "@/lib/api/keys";
-import { listImages, type ImageListQuery } from "@/lib/api/images";
+import { listImages, type ImageListQuery, updateImageMetadata } from "@/lib/api/images";
 import { getStorageUrl } from "@/lib/storage";
+import { getImageDimensions } from "@/lib/image/get-image-dimensions";
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -101,6 +102,7 @@ export function ImagePicker({
       if (uploadScope === "EVENT" && (!eventSlug || !eventSlug.trim())) {
         throw new Error(t("upload.needEventSlug"));
       }
+      const dimensions = await getImageDimensions(file);
 
       const fd = new FormData();
       fd.append("scope", uploadScope);
@@ -118,7 +120,12 @@ export function ImagePicker({
       }
 
       if (!res.ok) throw new Error(typeof data === "string" ? data : JSON.stringify(data));
-      return data as { image_id: number; storage_path: string };
+      const created = data as { image_id: number; storage_path: string };
+      await updateImageMetadata(created.image_id, {
+        width: dimensions.width,
+        height: dimensions.height,
+      });
+      return created;
     },
     onSuccess: async (created) => {
       toast.success(t("toast.uploadImageOk"));

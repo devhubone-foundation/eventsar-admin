@@ -15,12 +15,23 @@ import { Pagination } from "@/components/admin/pagination";
 import { ImageGridCard } from "@/components/admin/images/image-grid-card";
 
 type Scope = "ALL" | "EVENTS" | "SPONSORS" | "GLOBAL";
+type MimeFilter = "IMAGE_ALL" | "image/png" | "image/jpeg" | "image/webp" | "image/gif" | "image/svg+xml" | "image/avif";
 
 const SCOPE_FOLDERS: Record<Exclude<Scope, "ALL">, string[]> = {
   EVENTS: ["event", "events"],
   SPONSORS: ["sponsor", "sponsors"],
   GLOBAL: ["global"],
 };
+
+const MIME_OPTIONS: Array<{ value: MimeFilter; label: string }> = [
+  { value: "IMAGE_ALL", label: "image/*" },
+  { value: "image/png", label: "image/png" },
+  { value: "image/jpeg", label: "image/jpeg" },
+  { value: "image/webp", label: "image/webp" },
+  { value: "image/gif", label: "image/gif" },
+  { value: "image/svg+xml", label: "image/svg+xml" },
+  { value: "image/avif", label: "image/avif" },
+];
 
 export default function ImagesPage() {
   const { lang, t } = useI18n();
@@ -30,7 +41,7 @@ export default function ImagesPage() {
 
   const [q, setQ] = useState("");
   const [scope, setScope] = useState<Scope>("ALL");
-  const [mimePrefix, setMimePrefix] = useState("image/");
+  const [mimeFilter, setMimeFilter] = useState<MimeFilter>("IMAGE_ALL");
   const [createdFrom, setCreatedFrom] = useState("");
   const [createdTo, setCreatedTo] = useState("");
 
@@ -39,13 +50,14 @@ export default function ImagesPage() {
       page,
       pageSize,
       q: q || undefined,
-      mime_prefix: mimePrefix || undefined,
+      mime_prefix: mimeFilter === "IMAGE_ALL" ? "image/" : undefined,
+      mime_type: mimeFilter === "IMAGE_ALL" ? undefined : mimeFilter,
       createdFrom: createdFrom || undefined,
       createdTo: createdTo || undefined,
       sortBy: "created_at",
       sortDir: "desc",
     }),
-    [page, pageSize, q, mimePrefix, createdFrom, createdTo]
+    [page, pageSize, q, mimeFilter, createdFrom, createdTo]
   );
 
   const { data, isLoading, error, refetch } = useQuery({
@@ -69,7 +81,7 @@ export default function ImagesPage() {
     setPage(1);
     setQ("");
     setScope("ALL");
-    setMimePrefix("image/");
+    setMimeFilter("IMAGE_ALL");
     setCreatedFrom("");
     setCreatedTo("");
     refetch();
@@ -106,7 +118,16 @@ export default function ImagesPage() {
 
           <div className="space-y-1">
             <Label>{t("images.mime")}</Label>
-            <Input value={mimePrefix} onChange={(e) => (setPage(1), setMimePrefix(e.target.value))} />
+            <Select value={mimeFilter} onValueChange={(v) => (setPage(1), setMimeFilter(v as MimeFilter))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {MIME_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1">

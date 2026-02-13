@@ -59,11 +59,21 @@ export async function listImages(query: ImageListQuery) {
 
 
 export async function getImage(id: string) {
-  return apiClient<any>(`/api/admin/images/${id}`);
+  return apiClient<unknown>(`/api/admin/images/${id}`);
 }
 
 export async function deleteImage(id: string) {
   return apiClient<{ image_id: number; storage_path: string }>(`/api/admin/images/${id}`, {
     method: "DELETE",
+  });
+}
+
+export async function updateImageMetadata(
+  id: number | string,
+  payload: { name?: string; width?: number; height?: number }
+) {
+  return apiClient<unknown>(`/api/admin/images/${id}`, {
+    method: "PATCH",
+    body: payload,
   });
 }

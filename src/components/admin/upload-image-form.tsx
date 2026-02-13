@@ -18,6 +18,8 @@ import { FileDropzone } from "@/components/admin/file-dropzone";
 import { ImageThumb } from "@/components/admin/image-thumb";
 import { useI18n } from "@/components/i18n-provider";
 import { useMetaEnums } from "@/lib/meta/use-meta";
+import { getImageDimensions } from "@/lib/image/get-image-dimensions";
+import { updateImageMetadata } from "@/lib/api/images";
 
 const schema = z.object({
   scope: z.enum(["EVENT", "SPONSOR", "GLOBAL"]),
@@ -47,6 +49,7 @@ export function UploadImageForm() {
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       if (!file) throw new Error(t("toast.uploadFailed"));
+      const dimensions = await getImageDimensions(file);
 
       const fd = new FormData();
       fd.append("scope", values.scope);
@@ -72,7 +75,13 @@ export function UploadImageForm() {
         throw new Error(typeof data === "string" ? data : JSON.stringify(data));
       }
 
-      return data as { image_id: number; storage_path: string };
+      const created = data as { image_id: number; storage_path: string };
+      await updateImageMetadata(created.image_id, {
+        width: dimensions.width,
+        height: dimensions.height,
+      });
+
+      return created;
     },
     onSuccess: (data) => {
       setResult(data);

@@ -84,11 +84,11 @@ export function EventExperiencesTable({
           <thead className="bg-muted/50">
           <tr className="text-left">
             <th className="p-3 w-[56px]"></th>
-            <th className="p-3">Name</th>
-            <th className="p-3">Slug</th>
-            <th className="p-3">Type</th>
-            <th className="p-3">Status</th>
-            <th className="p-3">Order</th>
+            <th className="p-3">{t("experiences.table.name")}</th>
+            <th className="p-3">{t("experiences.table.slug")}</th>
+            <th className="p-3">{t("experiences.table.type")}</th>
+            <th className="p-3">{t("experiences.table.status")}</th>
+            <th className="p-3">{t("experiences.table.order")}</th>
             <th className="p-3"></th>
           </tr>
           </thead>
