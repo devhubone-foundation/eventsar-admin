@@ -108,5 +108,16 @@
   "experiences.sponsors.primary": "Primary",
   "experiences.sponsors.primaryHint": "Important: backend does not enforce a single primary. This UI will unset others on save.",
   "experiences.sponsors.sortOrder": "Order",
-  "experiences.sponsors.watermark": "Watermark"
+  "experiences.sponsors.watermark": "Watermark",
+
+  "event.qr.title": "Event QR for Unity",
+  "event.qr.subtitle": "Generate a QR payload that Unity can scan and resolve by event slug.",
+  "event.qr.payloadLabel": "Unity QR payload (v1)",
+  "event.qr.copySlug": "Copy slug",
+  "event.qr.copyPayload": "Copy payload",
+  "event.qr.copyDeepLink": "Copy deep link URL",
+  "event.qr.download": "Download QR",
+  "event.qr.copied": "Copied",
+  "event.qr.copyFailed": "Failed to copy",
+  "event.qr.downloadFailed": "Failed to download QR"
 }

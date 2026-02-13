@@ -227,5 +227,16 @@
   "common.yes": "Да",
   "common.no": "Не",
   "common.enabled": "Включено",
-  "common.disabled": "Изключено"
+  "common.disabled": "Изключено",
+
+  "event.qr.title": "QR код за събитие (Unity)",
+  "event.qr.subtitle": "Генерирай QR payload, който Unity може да сканира и отвори по slug.",
+  "event.qr.payloadLabel": "Unity QR payload (v1)",
+  "event.qr.copySlug": "Копирай slug",
+  "event.qr.copyPayload": "Копирай payload",
+  "event.qr.copyDeepLink": "Копирай deep link URL",
+  "event.qr.download": "Изтегли QR",
+  "event.qr.copied": "Копирано",
+  "event.qr.copyFailed": "Грешка при копиране",
+  "event.qr.downloadFailed": "Грешка при изтегляне на QR"
 }
