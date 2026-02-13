@@ -54,6 +54,8 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
   const markerRef = useRef<CircleMarker | null>(null);
   const onPickRef = useRef(onPick);
   const [open, setOpen] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  const [preferredCenter, setPreferredCenter] = useState<[number, number] | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -66,8 +68,9 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
 
   const initialCenter = useMemo<[number, number]>(() => {
     if (isValidLatLng(lat, lng)) return [lat, lng];
+    if (preferredCenter) return preferredCenter;
     return SOFIA_CENTER;
-  }, [lat, lng]);
+  }, [lat, lng, preferredCenter]);
 
   useEffect(() => {
     if (!open) return;
@@ -94,6 +97,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
       });
 
       mapRef.current = map;
+      setMapReady(true);
       cleanupMap = map;
     };
 
@@ -104,6 +108,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
       if (cleanupMap) {
         cleanupMap.remove();
       }
+      setMapReady(false);
       mapRef.current = null;
       markerRef.current = null;
     };
@@ -118,6 +123,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
   }, [open]);
 
   useEffect(() => {
+    if (!open || !mapReady) return;
     const map = mapRef.current;
     if (!map) return;
 
@@ -150,7 +156,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
     };
 
     void syncMarker();
-  }, [lat, lng]);
+  }, [open, mapReady, lat, lng]);
 
   useEffect(() => {
     const canUsePermissions =
@@ -167,7 +173,10 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             if (isCancelled) return;
-            onPickRef.current(roundCoord(position.coords.latitude), roundCoord(position.coords.longitude));
+            setPreferredCenter([
+              roundCoord(position.coords.latitude),
+              roundCoord(position.coords.longitude),
+            ]);
           },
           () => {
             // Keep current center when geolocation fails.
@@ -192,7 +201,10 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        applyCoordinates(position.coords.latitude, position.coords.longitude);
+        const nextLat = roundCoord(position.coords.latitude);
+        const nextLng = roundCoord(position.coords.longitude);
+        setPreferredCenter([nextLat, nextLng]);
+        mapRef.current?.setView([nextLat, nextLng], 15, { animate: true });
         setIsLocating(false);
       },
       () => {
@@ -203,6 +215,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
   };
 
   const centerOnSofia = () => {
+    setPreferredCenter(SOFIA_CENTER);
     mapRef.current?.setView(SOFIA_CENTER, 12, { animate: true });
   };
 
@@ -279,7 +292,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={useCurrentLocation} disabled={isLocating}>
-                  {isLocating ? "Locating..." : "Use current location"}
+                  {isLocating ? "Locating..." : "Center on current location"}
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={centerOnSofia}>
                   Center on Sofia
