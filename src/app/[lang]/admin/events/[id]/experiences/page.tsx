@@ -1,7 +1,7 @@
 // app/[lang]/admin/events/[id]/experiences/page.tsx
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
@@ -18,6 +18,7 @@ export default function EventExperiencesPage() {
   const { t } = useI18n();
   const params = useParams<{ id: string }>();
   const eventId = params.id;
+  const router = useRouter();
 
   const [open, setOpen] = useState(false);
 
@@ -44,7 +45,12 @@ export default function EventExperiencesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1 className="text-lg font-semibold">{t("experiences.title")}</h1>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => router.back()}>
+            Back
+          </Button>
+          <h1 className="text-lg font-semibold">{t("experiences.title")}</h1>
+        </div>
         <Button onClick={() => setOpen(true)} disabled={!eventSlug}>
           Create experience
         </Button>

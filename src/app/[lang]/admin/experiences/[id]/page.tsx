@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -30,6 +30,7 @@ export default function ExperienceDetailPage() {
   const params = useParams<{ id: string; lang: string }>();
   const id = params.id;
   const lang = params.lang;
+  const router = useRouter();
 
   const qc = useQueryClient();
   const meta = useMetaEnums();
@@ -140,6 +141,9 @@ export default function ExperienceDetailPage() {
   return (
     <div className="space-y-4">
       <div className="space-y-1">
+        <Button variant="outline" onClick={() => router.back()}>
+          Back
+        </Button>
         <h1 className="text-lg font-semibold">{exp.slug ?? `Experience #${id}`}</h1>
         <div className="text-xs text-muted-foreground">
           {exp.type ?? ""} • {exp.status ?? ""}

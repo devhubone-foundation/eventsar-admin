@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 
@@ -25,6 +25,7 @@ export default function EventDetailPage() {
   const params = useParams<{ id: string; lang: string }>();
   const id = params.id;
   const lang = params.lang;
+  const router = useRouter();
 
   const { data: event, isLoading, error } = useQuery({
     queryKey: qk.event(id),
@@ -54,12 +55,17 @@ export default function EventDetailPage() {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-lg font-semibold">
-            {event.slug ?? `Event #${id}`}
-          </h1>
-          <div className="text-xs text-muted-foreground">
-            {event.status ?? ""}
+        <div className="flex items-start gap-3">
+          <Button variant="outline" size="sm" onClick={() => router.back()}>
+            Back
+          </Button>
+          <div>
+            <h1 className="text-lg font-semibold">
+              {event.slug ?? `Event #${id}`}
+            </h1>
+            <div className="text-xs text-muted-foreground">
+              {event.status ?? ""}
+            </div>
           </div>
         </div>
 
