@@ -47,12 +47,12 @@ export default function EventExperiencesPage() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={() => router.back()}>
-            Back
+            {t("common.back")}
           </Button>
           <h1 className="text-lg font-semibold">{t("experiences.title")}</h1>
         </div>
         <Button onClick={() => setOpen(true)} disabled={!eventSlug}>
-          Create experience
+          {t("experiences.create")}
         </Button>
       </div>
 

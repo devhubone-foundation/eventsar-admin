@@ -62,7 +62,7 @@ export default function ImageDetailPage() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-start gap-3">
           <Button variant="outline" onClick={() => router.push(`/${lang}/admin/assets/images`)}>
-            Back
+            {t("common.back")}
           </Button>
           <div>
             <h1 className="text-lg font-semibold">{name ?? `Image #${id}`}</h1>

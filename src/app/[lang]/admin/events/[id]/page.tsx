@@ -57,7 +57,7 @@ export default function EventDetailPage() {
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-start gap-3">
           <Button variant="outline" size="sm" onClick={() => router.back()}>
-            Back
+            {t("common.back")}
           </Button>
           <div>
             <h1 className="text-lg font-semibold">
@@ -72,7 +72,7 @@ export default function EventDetailPage() {
         {/* ✅ Now lang is defined */}
         <Button asChild variant="outline" size="sm">
           <Link href={`/${lang}/admin/events/${id}/experiences`}>
-            Experiences
+            {t("events.experiences")}
           </Link>
         </Button>
       </div>

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { createExperience } from "@/lib/api/experiences";
 import { qk } from "@/lib/api/keys";
 import { useMetaEnums } from "@/lib/meta/use-meta";
+import { useI18n } from "@/components/i18n-provider";
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ export function CreateExperienceModal({
   onOpenChange: (v: boolean) => void;
   eventSlug: string;
 }) {
+  const { t } = useI18n();
   const meta = useMetaEnums();
   const qc = useQueryClient();
   const router = useRouter();
@@ -126,7 +128,7 @@ export function CreateExperienceModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent size="4xl" className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create experience</DialogTitle>
+          <DialogTitle>{t("experiences.create")}</DialogTitle>
         </DialogHeader>
 
         <form

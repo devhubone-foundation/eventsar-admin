@@ -142,7 +142,7 @@ export default function ExperienceDetailPage() {
     <div className="space-y-4">
       <div className="space-y-1">
         <Button variant="outline" onClick={() => router.back()}>
-          Back
+          {t("common.back")}
         </Button>
         <h1 className="text-lg font-semibold">{exp.slug ?? `Experience #${id}`}</h1>
         <div className="text-xs text-muted-foreground">
