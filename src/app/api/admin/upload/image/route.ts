@@ -2,8 +2,12 @@
 import { NextResponse } from "next/server";
 import { getSessionToken } from "@/lib/auth/session";
 import { config } from "@/lib/config";
+import { validateSameOrigin } from "@/lib/security/csrf";
 
 export async function POST(req: Request) {
+  const csrfError = validateSameOrigin(req);
+  if (csrfError) return csrfError;
+
   const token = await getSessionToken();
   if (!token) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 

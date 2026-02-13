@@ -2,8 +2,32 @@
 import { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 import { config } from "@/lib/config";
+import { validateSameOrigin } from "@/lib/security/csrf";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
+  const csrfError = validateSameOrigin(req);
+  if (csrfError) return csrfError;
+
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(`login:${ip}`, {
+    windowMs: 5 * 60 * 1000,
+    max: 10,
+  });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { message: "Too many login attempts. Try again later." },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(rl.retryAfterSeconds),
+          "X-RateLimit-Limit": "10",
+          "X-RateLimit-Remaining": "0",
+        },
+      }
+    );
+  }
+
   try {
     const body = await req.json();
 
@@ -15,11 +39,7 @@ export async function POST(req: Request) {
     });
 
     if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json(
-        { message: "Login failed", details: text },
-        { status: res.status }
-      );
+      return NextResponse.json({ message: "Login failed" }, { status: res.status });
     }
 
     const data = (await res.json()) as { accessToken?: string };

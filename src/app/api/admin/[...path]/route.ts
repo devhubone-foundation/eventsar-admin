@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { config } from "@/lib/config";
 import { getSessionToken } from "@/lib/auth/session";
+import { validateSameOrigin } from "@/lib/security/csrf";
 
 function toBackendPath(pathSegments: string[]) {
   return `/api/admin/${pathSegments.join("/")}`;
@@ -23,6 +24,8 @@ async function handler(
 
   const backendUrl = `${config.apiBaseUrl}${toBackendPath(path)}${qs}`;
   const method = req.method.toUpperCase();
+  const csrfError = validateSameOrigin(req);
+  if (csrfError) return csrfError;
 
   // ✅ Read body safely (some clients send Content-Type with empty body)
   const contentType = req.headers.get("content-type") ?? "";
