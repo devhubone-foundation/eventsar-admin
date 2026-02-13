@@ -13,15 +13,31 @@ type CopyValue = {
   value: string;
 };
 
+type ActionButton = {
+  label: string;
+  onClick: () => void | Promise<void>;
+  disabled?: boolean;
+};
+
 type QrCardProps = {
   title: string;
   value: string;
   subtitle?: string;
   helperText?: string;
   copyValues?: CopyValue[];
+  downloadFileName?: string;
+  actionButtons?: ActionButton[];
 };
 
-export function QrCard({ title, value, subtitle, helperText, copyValues = [] }: QrCardProps) {
+export function QrCard({
+  title,
+  value,
+  subtitle,
+  helperText,
+  copyValues = [],
+  downloadFileName = "event-qr.svg",
+  actionButtons = [],
+}: QrCardProps) {
   const { t } = useI18n();
   const qrWrapRef = useRef<HTMLDivElement | null>(null);
 
@@ -46,7 +62,7 @@ export function QrCard({ title, value, subtitle, helperText, copyValues = [] }: 
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "event-qr.svg";
+    link.download = downloadFileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -68,6 +84,11 @@ export function QrCard({ title, value, subtitle, helperText, copyValues = [] }: 
         <div className="flex flex-wrap gap-2">
           {copyValues.map((item) => (
             <Button key={item.label} type="button" variant="outline" size="sm" onClick={() => onCopy(item.value)}>
+              {item.label}
+            </Button>
+          ))}
+          {actionButtons.map((item) => (
+            <Button key={item.label} type="button" variant="outline" size="sm" onClick={item.onClick} disabled={item.disabled}>
               {item.label}
             </Button>
           ))}

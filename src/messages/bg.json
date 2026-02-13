@@ -238,5 +238,18 @@
   "event.qr.download": "Изтегли QR",
   "event.qr.copied": "Копирано",
   "event.qr.copyFailed": "Грешка при копиране",
-  "event.qr.downloadFailed": "Грешка при изтегляне на QR"
+  "event.qr.downloadFailed": "Грешка при изтегляне на QR",
+
+  "experience.qr.title": "QR / връзки за изживяване",
+  "experience.qr.subtitle": "Генерирай QR payload, който Unity може да сканира и отвори конкретното изживяване в събитието.",
+  "experience.qr.payloadLabel": "Unity QR payload (v1)",
+  "experience.qr.copyEventSlug": "Копирай event_slug",
+  "experience.qr.copyExperienceSlug": "Копирай experience_slug",
+  "experience.qr.copyPayload": "Копирай payload",
+  "experience.qr.testResolve": "Тест resolve",
+  "experience.qr.resolving": "Resolve...",
+  "experience.qr.resolveSuccess": "Resolve успешно",
+  "experience.qr.resolveFailed": "Resolve грешка",
+  "experience.qr.missingSlugs": "QR код за изживяване се генерира само когато има event slug и experience slug."
 }
+

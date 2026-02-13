@@ -119,5 +119,17 @@
   "event.qr.download": "Download QR",
   "event.qr.copied": "Copied",
   "event.qr.copyFailed": "Failed to copy",
-  "event.qr.downloadFailed": "Failed to download QR"
+  "event.qr.downloadFailed": "Failed to download QR",
+
+  "experience.qr.title": "Experience QR / Links",
+  "experience.qr.subtitle": "Generate a QR payload that Unity can scan and resolve for this experience within its event.",
+  "experience.qr.payloadLabel": "Unity QR payload (v1)",
+  "experience.qr.copyEventSlug": "Copy event_slug",
+  "experience.qr.copyExperienceSlug": "Copy experience_slug",
+  "experience.qr.copyPayload": "Copy payload",
+  "experience.qr.testResolve": "Test resolve",
+  "experience.qr.resolving": "Resolving...",
+  "experience.qr.resolveSuccess": "Resolve succeeded",
+  "experience.qr.resolveFailed": "Resolve failed",
+  "experience.qr.missingSlugs": "Experience QR is unavailable until both event slug and experience slug are present."
 }

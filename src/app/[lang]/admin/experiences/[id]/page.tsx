@@ -10,6 +10,7 @@ import { qk } from "@/lib/api/keys";
 import { getExperience } from "@/lib/api/experiences";
 import { getEvent } from "@/lib/api/events";
 import { setExperienceStatus } from "@/lib/api/experience-status";
+import { config } from "@/lib/config";
 import { useMetaEnums } from "@/lib/meta/use-meta";
 import { useI18n } from "@/components/i18n-provider";
 
@@ -22,11 +23,13 @@ import { ExperienceContentForm } from "@/components/admin/experiences/experience
 import { ExperienceLocalizationsForm } from "@/components/admin/experiences/experience-localizations-form";
 import { ExperienceSponsorsForm } from "@/components/admin/experiences/experience-sponsors-form";
 import { ExperienceWatermarkForm } from "@/components/admin/experiences/experience-watermark-form";
+import { QrCard } from "@/components/admin/qr/qr-card";
 
 export default function ExperienceDetailPage() {
   const { t } = useI18n();
-  const params = useParams<{ id: string }>();
+  const params = useParams<{ id: string; lang: string }>();
   const id = params.id;
+  const lang = params.lang;
 
   const qc = useQueryClient();
   const meta = useMetaEnums();
@@ -46,6 +49,30 @@ export default function ExperienceDetailPage() {
   });
 
   const eventSlug = String(eventQ.data?.slug ?? "");
+  const experienceSlug = String(exp?.slug ?? "");
+  const canGenerateExperienceQr = Boolean(eventSlug && experienceSlug);
+  const [isTestingResolve, setIsTestingResolve] = useState(false);
+
+  const experienceQrPayload = useMemo(
+    () =>
+      JSON.stringify({
+        v: 1,
+        kind: "EXPERIENCE",
+        event_slug: eventSlug,
+        experience_slug: experienceSlug,
+      }),
+    [eventSlug, experienceSlug]
+  );
+
+  const resolveUrl = useMemo(() => {
+    if (!canGenerateExperienceQr) return "";
+    const base = config.apiBaseUrl.replace(/\/+$/, "");
+    if (!base) return "";
+    const eventPart = encodeURIComponent(eventSlug);
+    const expPart = encodeURIComponent(experienceSlug);
+    const langPart = encodeURIComponent(lang || "en");
+    return `${base}/api/events/${eventPart}/experiences/${expPart}?lang=${langPart}`;
+  }, [canGenerateExperienceQr, eventSlug, experienceSlug, lang]);
 
   const statuses: string[] = useMemo(() => {
     const raw = meta.enums.Experience_Status ?? [];
@@ -89,6 +116,26 @@ export default function ExperienceDetailPage() {
   // Normalize backend shape: you said it's Experience_Localization
   const expLocs = (exp.Experience_Localization ?? exp.localizations ?? []) as Array<any>;
   const expSponsors = (exp.experience_sponsors ?? exp.sponsors ?? exp.Experience_Sponsors ?? []) as Array<any>;
+
+  const onTestResolve = async () => {
+    if (!resolveUrl) {
+      toast.error("NEXT_PUBLIC_API_BASE_URL is not set");
+      return;
+    }
+    setIsTestingResolve(true);
+    try {
+      const res = await fetch(resolveUrl, { method: "GET" });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      toast.success(t("experience.qr.resolveSuccess"));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : t("experience.qr.resolveFailed");
+      toast.error(`${t("experience.qr.resolveFailed")}: ${message}`);
+    } finally {
+      setIsTestingResolve(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -150,6 +197,32 @@ export default function ExperienceDetailPage() {
                 {statusMut.isPending ? t("common.saving") : t("common.save")}
               </Button>
             </div>
+
+            {canGenerateExperienceQr ? (
+              <QrCard
+                title={t("experience.qr.title")}
+                subtitle={t("experience.qr.subtitle")}
+                helperText={t("experience.qr.payloadLabel")}
+                value={experienceQrPayload}
+                copyValues={[
+                  { label: t("experience.qr.copyEventSlug"), value: eventSlug },
+                  { label: t("experience.qr.copyExperienceSlug"), value: experienceSlug },
+                  { label: t("experience.qr.copyPayload"), value: experienceQrPayload },
+                ]}
+                actionButtons={[
+                  {
+                    label: isTestingResolve ? t("experience.qr.resolving") : t("experience.qr.testResolve"),
+                    onClick: onTestResolve,
+                    disabled: isTestingResolve || !resolveUrl,
+                  },
+                ]}
+                downloadFileName={`${eventSlug}-${experienceSlug}-qr.svg`}
+              />
+            ) : (
+              <div className="rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                {t("experience.qr.missingSlugs")}
+              </div>
+            )}
           </div>
         </TabsContent>
 
