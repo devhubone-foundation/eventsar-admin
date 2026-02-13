@@ -123,6 +123,9 @@ export default function ImageDetailPage() {
 
       <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
         <DialogContent size="5xl" className="p-2 sm:p-4">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{name ?? `Image #${id}`} preview</DialogTitle>
+          </DialogHeader>
           <div className="relative flex h-[70vh] w-full items-center justify-center overflow-hidden rounded bg-background">
             <Image
               src={imageUrl}
