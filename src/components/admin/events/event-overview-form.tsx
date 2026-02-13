@@ -52,6 +52,28 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+function isoToDateTimeLocal(value: string | null | undefined): string {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const mm = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+  const hh = pad(d.getHours());
+  const min = pad(d.getMinutes());
+
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+}
+
+function dateTimeLocalToIso(value: string | undefined): string | null {
+  if (!value?.trim()) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
 export function EventOverviewForm({ event }: { event: any }) {
   const { t } = useI18n();
   const qc = useQueryClient();
@@ -63,6 +85,34 @@ export function EventOverviewForm({ event }: { event: any }) {
 
   const eventId = String(event.event_id ?? event.id);
   const originalStatus = useMemo(() => String(event.status ?? "DRAFT"), [event.status]);
+  const timezoneOptions = useMemo(() => {
+    if (typeof Intl !== "undefined" && typeof (Intl as any).supportedValuesOf === "function") {
+      try {
+        return (Intl as any).supportedValuesOf("timeZone") as string[];
+      } catch {
+        // ignore and use fallback
+      }
+    }
+
+    return [
+      "UTC",
+      "Europe/London",
+      "Europe/Sofia",
+      "Europe/Berlin",
+      "Europe/Paris",
+      "Europe/Madrid",
+      "Europe/Rome",
+      "America/New_York",
+      "America/Chicago",
+      "America/Denver",
+      "America/Los_Angeles",
+      "America/Toronto",
+      "Asia/Tokyo",
+      "Asia/Dubai",
+      "Asia/Singapore",
+      "Australia/Sydney",
+    ];
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -74,8 +124,8 @@ export function EventOverviewForm({ event }: { event: any }) {
       contact_email: event.contact_email ?? "",
       contact_phone: event.contact_phone ?? "",
       environment: event.environment ?? "",
-      start_at: event.start_at ?? "",
-      end_at: event.end_at ?? "",
+      start_at: isoToDateTimeLocal(event.start_at),
+      end_at: isoToDateTimeLocal(event.end_at),
       about_url: event.about_url ?? "",
       rules_url: event.rules_url ?? "",
       terms_url: event.terms_url ?? "",
@@ -95,8 +145,8 @@ export function EventOverviewForm({ event }: { event: any }) {
         contact_email: v.contact_email ?? null,
         contact_phone: v.contact_phone ?? null,
         environment: v.environment ?? null,
-        start_at: v.start_at ?? null,
-        end_at: v.end_at ?? null,
+        start_at: dateTimeLocalToIso(v.start_at),
+        end_at: dateTimeLocalToIso(v.end_at),
         about_url: v.about_url ?? null,
         rules_url: v.rules_url ?? null,
         terms_url: v.terms_url ?? null,
@@ -158,7 +208,12 @@ export function EventOverviewForm({ event }: { event: any }) {
 
         <div className="space-y-1">
           <Label>Timezone</Label>
-          <Input {...form.register("timezone")} placeholder="Europe/Sofia" />
+          <Input {...form.register("timezone")} list="timezone-options" placeholder="Europe/Sofia" />
+          <datalist id="timezone-options">
+            {timezoneOptions.map((tz) => (
+              <option key={tz} value={tz} />
+            ))}
+          </datalist>
         </div>
 
         <div className="space-y-1">
@@ -228,12 +283,12 @@ export function EventOverviewForm({ event }: { event: any }) {
 
         <div className="space-y-1">
           <Label>Start at (ISO)</Label>
-          <Input {...form.register("start_at")} placeholder="2026-02-15T10:00:00.000Z" />
+          <Input type="datetime-local" step={60} {...form.register("start_at")} />
         </div>
 
         <div className="space-y-1">
           <Label>End at (ISO)</Label>
-          <Input {...form.register("end_at")} placeholder="2026-02-15T18:00:00.000Z" />
+          <Input type="datetime-local" step={60} {...form.register("end_at")} />
         </div>
 
         <div className="space-y-1">
