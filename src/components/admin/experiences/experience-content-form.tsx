@@ -1,7 +1,7 @@
 // src/components/admin/experiences/experience-content-form.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { ImagePicker, type ImagePickerValue } from "@/components/admin/images/image-picker";
 import { ModelPicker } from "@/components/admin/models/model-picker";
@@ -38,6 +39,7 @@ const vec3Schema = z.object({
 
 const schema = z.object({
   slug: slugSchema.optional(),
+  type: z.string().min(1).optional(),
 
   thumbnail_image_id: z.number().optional(),
   model_id: z.number().optional(),
@@ -90,8 +92,7 @@ export function ExperienceContentForm({
   const experienceId = experience.experience_id ?? experience.id;
   const eventId = experience.event_id;
 
-  const isTracking = experience.type === "IMAGE_TRACKING_AR";
-  const isFace = experience.type === "FACE_GLB";
+  const types = (meta.enums.Experience_Type ?? []).filter((x) => x && x.trim());
 
   // ✅ FIX: keep selected images as state, so the picker UI updates
   const [thumbImg, setThumbImg] = useState<ImagePickerValue>(experience.thumbnail_image ?? null);
@@ -101,6 +102,7 @@ export function ExperienceContentForm({
     resolver: zodResolver(schema),
     defaultValues: {
       slug: experience.slug ?? "",
+      type: experience.type ?? "",
 
       thumbnail_image_id: experience.thumbnail_image_id ?? undefined,
       model_id: experience.model_id ?? undefined,
@@ -120,10 +122,20 @@ export function ExperienceContentForm({
     },
   });
 
+  const selectedType = form.watch("type") || experience.type;
+  const isTracking = selectedType === "IMAGE_TRACKING_AR" || selectedType === "STICKER_TRACKING_AR";
+  const isFace = selectedType === "FACE_GLB";
+  const needsModel =
+    selectedType === "WORLD_AR_GLB" ||
+    selectedType === "FACE_GLB" ||
+    selectedType === "IMAGE_TRACKING_AR" ||
+    selectedType === "STICKER_TRACKING_AR";
+
   // ✅ keep form + picker previews synced when experience refetches
   useEffect(() => {
     form.reset({
       slug: experience.slug ?? "",
+      type: experience.type ?? "",
 
       thumbnail_image_id: experience.thumbnail_image_id ?? undefined,
       model_id: experience.model_id ?? undefined,
@@ -150,10 +162,12 @@ export function ExperienceContentForm({
   const mut = useMutation({
     mutationFn: async (v: FormValues) => {
       // keep your frontend helper rules
-      if (!v.model_id) throw new Error("Model is required.");
+      if (needsModel && !v.model_id) throw new Error("Model is required for this experience type.");
 
       if (isTracking) {
-        if (!v.tracking_image_id) throw new Error("Tracking image is required for IMAGE_TRACKING_AR.");
+        if (!v.tracking_image_id) {
+          throw new Error(`Tracking image is required for ${selectedType}.`);
+        }
         if (!v.physical_width_meters || v.physical_width_meters <= 0) {
           throw new Error("physical_width_meters must be > 0");
         }
@@ -161,6 +175,7 @@ export function ExperienceContentForm({
 
       const payload = stripUndefined({
         slug: v.slug,
+        type: v.type,
 
         thumbnail_image_id: v.thumbnail_image_id,
         model_id: v.model_id,
@@ -220,10 +235,24 @@ export function ExperienceContentForm({
 
           <div className="space-y-1">
             <Label>Type</Label>
-            <div className="text-sm rounded border bg-muted/30 px-3 py-2">{experience.type}</div>
-            <div className="text-xs text-muted-foreground">
-              (Read-only in UI for now.)
-            </div>
+            <Select
+              value={form.watch("type") ?? ""}
+              onValueChange={(v) => form.setValue("type", v, { shouldValidate: true, shouldDirty: true })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {types.map((x) => (
+                  <SelectItem key={x} value={x}>
+                    {meta.enumLabel("Experience_Type", x)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.type && (
+              <p className="text-sm text-red-600">{String(form.formState.errors.type.message)}</p>
+            )}
           </div>
         </div>
 
@@ -242,13 +271,15 @@ export function ExperienceContentForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Model (required)</Label>
+            <Label>Model {needsModel ? "(required)" : "(optional)"}</Label>
             <ModelPicker
               value={form.watch("model_id") ?? null}
               onChange={(id) => form.setValue("model_id", id ?? undefined, { shouldValidate: true })}
               uploadDefaults={{ eventSlug: eventSlug ?? "" }}
             />
-            {!form.watch("model_id") && <p className="text-sm text-red-600">Model is required.</p>}
+            {needsModel && !form.watch("model_id") && (
+              <p className="text-sm text-red-600">Model is required for this type.</p>
+            )}
           </div>
         </div>
 

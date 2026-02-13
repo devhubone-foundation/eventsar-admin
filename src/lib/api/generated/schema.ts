@@ -886,7 +886,7 @@ export interface components {
              * @example IMAGE_TRACKING_AR
              * @enum {string}
              */
-            type: "WORLD_AR_GLB" | "FACE_GLB" | "IMAGE_TRACKING_AR";
+            type: "WORLD_AR_GLB" | "FACE_GLB" | "IMAGE_TRACKING_AR" | "STICKER_TRACKING_AR";
             /**
              * @example DRAFT
              * @enum {string}
@@ -935,7 +935,7 @@ export interface components {
             /** @example robot-detector */
             slug?: string;
             /** @enum {string} */
-            type?: "WORLD_AR_GLB" | "FACE_GLB" | "IMAGE_TRACKING_AR";
+            type?: "WORLD_AR_GLB" | "FACE_GLB" | "IMAGE_TRACKING_AR" | "STICKER_TRACKING_AR";
             /** @example 12 */
             thumbnail_image_id?: number;
             /** @example 5 */
@@ -2162,7 +2162,7 @@ export interface operations {
                 /** @description Search slug (admin) */
                 q?: string;
                 status?: "DRAFT" | "ACTIVE" | "HIDDEN" | "ARCHIVED";
-                type?: "WORLD_AR_GLB" | "FACE_GLB" | "IMAGE_TRACKING_AR";
+                type?: "WORLD_AR_GLB" | "FACE_GLB" | "IMAGE_TRACKING_AR" | "STICKER_TRACKING_AR";
                 sortBy?: "created_at" | "sort_order" | "slug";
                 sortDir?: "asc" | "desc";
             };

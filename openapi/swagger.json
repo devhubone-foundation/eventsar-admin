@@ -1898,7 +1898,8 @@
               "enum": [
                 "WORLD_AR_GLB",
                 "FACE_GLB",
-                "IMAGE_TRACKING_AR"
+                "IMAGE_TRACKING_AR",
+                "STICKER_TRACKING_AR"
               ],
               "type": "string"
             }
@@ -2944,7 +2945,8 @@
             "enum": [
               "WORLD_AR_GLB",
               "FACE_GLB",
-              "IMAGE_TRACKING_AR"
+              "IMAGE_TRACKING_AR",
+              "STICKER_TRACKING_AR"
             ],
             "example": "IMAGE_TRACKING_AR"
           },
@@ -3026,7 +3028,8 @@
             "enum": [
               "WORLD_AR_GLB",
               "FACE_GLB",
-              "IMAGE_TRACKING_AR"
+              "IMAGE_TRACKING_AR",
+              "STICKER_TRACKING_AR"
             ]
           },
           "thumbnail_image_id": {

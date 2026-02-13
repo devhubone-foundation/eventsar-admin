@@ -11,7 +11,6 @@ import { toast } from "sonner";
 import { createExperience } from "@/lib/api/experiences";
 import { qk } from "@/lib/api/keys";
 import { useMetaEnums } from "@/lib/meta/use-meta";
-import { useI18n } from "@/components/i18n-provider";
 
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -47,7 +46,6 @@ export function CreateExperienceModal({
   onOpenChange: (v: boolean) => void;
   eventSlug: string;
 }) {
-  const { t } = useI18n();
   const meta = useMetaEnums();
   const qc = useQueryClient();
   const router = useRouter();
@@ -75,9 +73,16 @@ export function CreateExperienceModal({
   });
 
   const selectedType = form.watch("type");
-  const needsTracking = useMemo(() => selectedType === "IMAGE_TRACKING_AR", [selectedType]);
+  const needsTracking = useMemo(
+    () => selectedType === "IMAGE_TRACKING_AR" || selectedType === "STICKER_TRACKING_AR",
+    [selectedType]
+  );
   const needsModel = useMemo(
-    () => selectedType === "WORLD_AR_GLB" || selectedType === "FACE_GLB" || selectedType === "IMAGE_TRACKING_AR",
+    () =>
+      selectedType === "WORLD_AR_GLB" ||
+      selectedType === "FACE_GLB" ||
+      selectedType === "IMAGE_TRACKING_AR" ||
+      selectedType === "STICKER_TRACKING_AR",
     [selectedType]
   );
 
@@ -86,7 +91,9 @@ export function CreateExperienceModal({
       if (needsModel && !v.model_id) throw new Error("model is required for this experience type");
 
       if (needsTracking) {
-        if (!v.tracking_image_id) throw new Error("tracking image is required for IMAGE_TRACKING_AR");
+        if (!v.tracking_image_id) {
+          throw new Error(`tracking image is required for ${selectedType || "this type"}`);
+        }
         if (!v.physical_width_meters || v.physical_width_meters <= 0) {
           throw new Error("physical_width_meters must be > 0");
         }
@@ -106,6 +113,7 @@ export function CreateExperienceModal({
       toast.success("Created");
       onOpenChange(false);
       await qc.invalidateQueries({ queryKey: qk.eventExperiences(eventId) });
+      await qc.invalidateQueries({ queryKey: ["experiences", String(eventId)] });
 
       const id = created?.experience_id ?? created?.id;
       if (id) router.push(`/${lang}/admin/experiences/${id}`);
@@ -201,8 +209,8 @@ export function CreateExperienceModal({
                   allowedScopes={["EVENT", "GLOBAL"]}
                   eventSlug={eventSlug}
                 />
-                {!form.watch("tracking_image_id") && (
-                  <p className="text-sm text-red-600">Tracking image is required for IMAGE_TRACKING_AR.</p>
+                {!form.watch("tracking_image_id") && selectedType && (
+                  <p className="text-sm text-red-600">Tracking image is required for {selectedType}.</p>
                 )}
               </div>
 

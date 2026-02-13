@@ -301,5 +301,6 @@
   "admin.dashboard.code": "Code",
   "admin.dashboard.createdAt": "Created",
   "admin.dashboard.version": "Version",
-  "admin.dashboard.eventSlug": "Event slug"
+  "admin.dashboard.eventSlug": "Event slug",
+  "enum.Experience_Type.STICKER_TRACKING_AR": "AR стикер (маркер)"
 }
