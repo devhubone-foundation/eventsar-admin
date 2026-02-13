@@ -156,6 +156,8 @@
   "auth.title": "Admin login",
   "auth.username": "Username",
   "auth.password": "Password",
+  "auth.showPassword": "Show password",
+  "auth.hidePassword": "Hide password",
   "auth.signIn": "Sign in",
   "auth.signingIn": "Signing in...",
   "auth.loginFailed": "Login failed",

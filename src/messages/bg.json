@@ -156,6 +156,8 @@
   "auth.title": "Администраторски вход",
   "auth.username": "Потребителско име",
   "auth.password": "Парола",
+  "auth.showPassword": "Покажи парола",
+  "auth.hidePassword": "Скрий парола",
   "auth.signIn": "Вход",
   "auth.signingIn": "Влизане...",
   "auth.loginFailed": "Неуспешен вход",

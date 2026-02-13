@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const { lang, t } = useI18n();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -67,7 +69,24 @@ export default function AdminLoginPage() {
 
             <div className="space-y-1">
               <Label htmlFor="password">{t("auth.password")}</Label>
-              <Input id="password" type="password" {...form.register("password")} />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className="pr-10"
+                  {...form.register("password")}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? t("auth.hidePassword") : t("auth.showPassword")}
+                >
+                  {showPassword ? <EyeOff /> : <Eye />}
+                </Button>
+              </div>
               {form.formState.errors.password && (
                 <p className="text-sm text-red-600">
                   {form.formState.errors.password.message}
