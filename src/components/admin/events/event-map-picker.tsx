@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useI18n } from "@/components/i18n-provider";
 
 type EventMapPickerProps = {
   lat?: number;
@@ -49,6 +50,7 @@ function roundCoord(v: number): number {
 }
 
 export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
+  const { t } = useI18n();
   const mapRef = useRef<LeafletMap | null>(null);
   const mapRootRef = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<CircleMarker | null>(null);
@@ -237,9 +239,9 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
       const data = (await res.json()) as NominatimResult[];
       const normalized = Array.isArray(data) ? data : [];
       setSearchResults(normalized);
-      if (!normalized.length) setSearchError("No results found.");
+      if (!normalized.length) setSearchError(t("events.map.noResults"));
     } catch {
-      setSearchError("Address search failed. Try again.");
+      setSearchError(t("events.map.searchFailed"));
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -258,21 +260,21 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
     <>
       <div className="space-y-2">
         <Button type="button" variant="outline" onClick={() => setOpen(true)}>
-          {isValidLatLng(lat, lng) ? "Update map pin" : "Pick coordinates on map"}
+          {isValidLatLng(lat, lng) ? t("events.map.updatePin") : t("events.map.pickOnMap")}
         </Button>
         <p className="text-xs text-muted-foreground">
           {isValidLatLng(lat, lng)
-            ? `Selected: ${lat.toFixed(6)}, ${lng.toFixed(6)}`
-            : "No coordinates selected yet."}
+            ? `${t("events.map.selectedPrefix")} ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+            : t("events.map.noneSelected")}
         </p>
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent size="4xl">
           <DialogHeader>
-            <DialogTitle>Pick coordinates</DialogTitle>
+            <DialogTitle>{t("events.map.title")}</DialogTitle>
             <DialogDescription>
-              Search for an address or click on the map. Tiles and geocoding use OpenStreetMap services.
+              {t("events.map.description")}
             </DialogDescription>
           </DialogHeader>
 
@@ -280,10 +282,10 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search address, city, venue..."
+              placeholder={t("events.map.searchPlaceholder")}
             />
             <Button type="submit" variant="outline" disabled={isSearching}>
-              {isSearching ? "Searching..." : "Search"}
+              {isSearching ? t("events.map.searching") : t("events.map.search")}
             </Button>
           </form>
 
@@ -292,17 +294,17 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
             <div className="space-y-2">
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={useCurrentLocation} disabled={isLocating}>
-                  {isLocating ? "Locating..." : "Center on current location"}
+                  {isLocating ? t("events.map.locating") : t("events.map.centerCurrent")}
                 </Button>
                 <Button type="button" variant="outline" size="sm" onClick={centerOnSofia}>
-                  Center on Sofia
+                  {t("events.map.centerSofia")}
                 </Button>
               </div>
 
               <div className="max-h-[360px] space-y-1 overflow-auto rounded-md border p-2">
                 {searchError && <p className="text-xs text-red-600">{searchError}</p>}
                 {!searchError && !searchResults.length && (
-                  <p className="text-xs text-muted-foreground">Search results will appear here.</p>
+                  <p className="text-xs text-muted-foreground">{t("events.map.searchResultsHint")}</p>
                 )}
                 {searchResults.map((result) => (
                   <button

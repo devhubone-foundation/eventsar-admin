@@ -218,20 +218,20 @@ export function EventOverviewForm({ event }: { event: any }) {
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="space-y-1">
-        <Label>Slug</Label>
+        <Label>{t("events.form.slug")}</Label>
         <Input value={String(event.slug ?? "")} readOnly className="bg-muted" />
-        <p className="text-xs text-muted-foreground">Slug is immutable after creation.</p>
+        <p className="text-xs text-muted-foreground">{t("events.form.slugHint")}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1">
-          <Label>Code</Label>
-          <Input {...form.register("code")} placeholder="SOFIA2026" />
+          <Label>{t("events.form.code")}</Label>
+          <Input {...form.register("code")} placeholder={t("events.form.codePlaceholder")} />
         </div>
 
         <div className="space-y-1">
-          <Label>Timezone</Label>
-          <Input {...form.register("timezone")} list="timezone-options" placeholder="Europe/Sofia" />
+          <Label>{t("events.form.timezone")}</Label>
+          <Input {...form.register("timezone")} list="timezone-options" placeholder={t("events.form.timezonePlaceholder")} />
           <datalist id="timezone-options">
             {timezoneOptions.map((tz) => (
               <option key={tz} value={tz} />
@@ -240,45 +240,45 @@ export function EventOverviewForm({ event }: { event: any }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Website URL</Label>
-          <Input {...form.register("website_url")} placeholder="https://event.com" />
+          <Label>{t("events.form.websiteUrl")}</Label>
+          <Input {...form.register("website_url")} placeholder={t("events.form.websiteUrlPlaceholder")} />
           {form.formState.errors.website_url && (
             <p className="text-xs text-red-600">{String(form.formState.errors.website_url.message)}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <Label>Support URL</Label>
-          <Input {...form.register("support_url")} placeholder="https://event.com/support" />
+          <Label>{t("events.form.supportUrl")}</Label>
+          <Input {...form.register("support_url")} placeholder={t("events.form.supportUrlPlaceholder")} />
           {form.formState.errors.support_url && (
             <p className="text-xs text-red-600">{String(form.formState.errors.support_url.message)}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <Label>Contact email</Label>
-          <Input {...form.register("contact_email")} placeholder="support@event.com" />
+          <Label>{t("events.form.contactEmail")}</Label>
+          <Input {...form.register("contact_email")} placeholder={t("events.form.contactEmailPlaceholder")} />
           {form.formState.errors.contact_email && (
             <p className="text-xs text-red-600">{String(form.formState.errors.contact_email.message)}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <Label>Contact phone</Label>
-          <Input {...form.register("contact_phone")} placeholder="+359..." />
+          <Label>{t("events.form.contactPhone")}</Label>
+          <Input {...form.register("contact_phone")} placeholder={t("events.form.contactPhonePlaceholder")} />
         </div>
 
         <div className="space-y-1">
-          <Label>Environment</Label>
+          <Label>{t("events.form.environment")}</Label>
           <Select
             value={form.watch("environment") || ENV_NONE}
             onValueChange={(v) => form.setValue("environment", v === ENV_NONE ? "" : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="(none)" />
+              <SelectValue placeholder={t("events.form.none")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={ENV_NONE}>(none)</SelectItem>
+              <SelectItem value={ENV_NONE}>{t("events.form.none")}</SelectItem>
               {envTypes.map((e) => (
                 <SelectItem key={e} value={e}>
                   {meta.enumLabel("Environment_Type", e)}
@@ -290,7 +290,7 @@ export function EventOverviewForm({ event }: { event: any }) {
 
 
         <div className="space-y-1">
-          <Label>Status</Label>
+          <Label>{t("events.form.status")}</Label>
           <Select value={form.watch("status")} onValueChange={(v) => form.setValue("status", v)}>
             <SelectTrigger><SelectValue/></SelectTrigger>
             <SelectContent>
@@ -305,46 +305,46 @@ export function EventOverviewForm({ event }: { event: any }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Start at (ISO)</Label>
+          <Label>{t("events.form.startAtIso")}</Label>
           <Input type="datetime-local" step={60} {...form.register("start_at")} />
         </div>
 
         <div className="space-y-1">
-          <Label>End at (ISO)</Label>
+          <Label>{t("events.form.endAtIso")}</Label>
           <Input type="datetime-local" step={60} {...form.register("end_at")} />
         </div>
 
         <div className="space-y-1">
-          <Label>About URL</Label>
-          <Input {...form.register("about_url")} placeholder="https://event.com/about" />
+          <Label>{t("events.form.aboutUrl")}</Label>
+          <Input {...form.register("about_url")} placeholder={t("events.form.aboutUrlPlaceholder")} />
           {form.formState.errors.about_url && (
             <p className="text-xs text-red-600">{String(form.formState.errors.about_url.message)}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <Label>Rules URL</Label>
-          <Input {...form.register("rules_url")} placeholder="https://event.com/rules" />
+          <Label>{t("events.form.rulesUrl")}</Label>
+          <Input {...form.register("rules_url")} placeholder={t("events.form.rulesUrlPlaceholder")} />
           {form.formState.errors.rules_url && (
             <p className="text-xs text-red-600">{String(form.formState.errors.rules_url.message)}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <Label>Terms URL</Label>
-          <Input {...form.register("terms_url")} placeholder="https://event.com/terms" />
+          <Label>{t("events.form.termsUrl")}</Label>
+          <Input {...form.register("terms_url")} placeholder={t("events.form.termsUrlPlaceholder")} />
           {form.formState.errors.terms_url && (
             <p className="text-xs text-red-600">{String(form.formState.errors.terms_url.message)}</p>
           )}
         </div>
 
         <div className="space-y-1 md:col-span-2">
-          <Label>Map picker</Label>
+          <Label>{t("events.form.mapPicker")}</Label>
           <EventMapPicker lat={mapLat} lng={mapLng} onPick={handleMapPick} />
         </div>
 
         <div className="space-y-1">
-          <Label>Lat</Label>
+          <Label>{t("events.form.lat")}</Label>
           <Input
             type="number"
             step="0.000001"
@@ -355,7 +355,7 @@ export function EventOverviewForm({ event }: { event: any }) {
         </div>
 
         <div className="space-y-1">
-          <Label>Lng</Label>
+          <Label>{t("events.form.lng")}</Label>
           <Input
             type="number"
             step="0.000001"

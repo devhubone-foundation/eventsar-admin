@@ -158,7 +158,7 @@ export function EventLocalizationsPanel({ event }: { event: any }) {
               <Label>{t("event.loc.name")}</Label>
               <Input {...bgForm.register("name")} />
               <p className="text-xs text-muted-foreground">
-                (Optional) If you don’t need BG yet, leave empty.
+                (Required) You need to fill both Bulgarian and English localizations for the app to work correctly.
               </p>
             </div>
 
