@@ -124,7 +124,7 @@ export function CreateExperienceModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent size="4xl" className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create experience</DialogTitle>
         </DialogHeader>
@@ -136,7 +136,7 @@ export function CreateExperienceModal({
             () => toast.error("Please fix the highlighted fields.")
           )}
         >
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-1">
               <Label>Slug</Label>
               <Input {...form.register("slug")} placeholder="robot-detective" />
@@ -169,7 +169,7 @@ export function CreateExperienceModal({
             </div>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-2">
               <Label>Thumbnail (optional)</Label>
               <ImagePicker
@@ -197,7 +197,7 @@ export function CreateExperienceModal({
           </div>
 
           {needsTracking && (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-2">
               <div className="space-y-2">
                 <Label>Tracking image (required)</Label>
                 <ImagePicker
