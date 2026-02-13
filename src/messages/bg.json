@@ -1,0 +1,29 @@
+{
+  "app.name": "EventsAR",
+  "common.logout": "Изход",
+  "common.loading": "Зареждане...",
+  "common.comingSoon": "Очаквайте скоро",
+  "lang.bg": "БГ",
+  "lang.en": "EN",
+
+  "public.adminLink": "Админ вход",
+
+  "auth.title": "Админ вход",
+  "auth.username": "Потребител",
+  "auth.password": "Парола",
+  "auth.signIn": "Вход",
+  "auth.signingIn": "Влизане...",
+  "auth.loginFailed": "Неуспешен вход",
+
+  "nav.admin": "Админ",
+  "nav.dashboard": "Табло",
+  "nav.events": "Събития",
+  "nav.sponsors": "Спонсори",
+  "nav.upload": "Качване",
+  "nav.assets": "Снимки",
+  "nav.models": "Модели",
+  "nav.metrics": "Метрики",
+
+  "admin.title": "Админ",
+  "admin.placeholder": "Очаквайте скоро"
+}

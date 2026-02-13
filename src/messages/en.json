@@ -1,0 +1,29 @@
+{
+  "app.name": "EventsAR",
+  "common.logout": "Logout",
+  "common.loading": "Loading...",
+  "common.comingSoon": "Coming soon",
+  "lang.bg": "BG",
+  "lang.en": "EN",
+
+  "public.adminLink": "Admin login",
+
+  "auth.title": "Admin Login",
+  "auth.username": "Username",
+  "auth.password": "Password",
+  "auth.signIn": "Sign in",
+  "auth.signingIn": "Signing in...",
+  "auth.loginFailed": "Login failed",
+
+  "nav.admin": "Admin",
+  "nav.dashboard": "Dashboard",
+  "nav.events": "Events",
+  "nav.sponsors": "Sponsors",
+  "nav.upload": "Upload",
+  "nav.assets": "Images",
+  "nav.models": "Models",
+  "nav.metrics": "Metrics",
+
+  "admin.title": "Admin",
+  "admin.placeholder": "Coming soon"
+}
