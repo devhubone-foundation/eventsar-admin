@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gen:api": "openapi-typescript openapi/swagger.json -o src/lib/api/generated/schema.ts",
+    "gen:api:watch": "openapi-typescript openapi/swagger.json -o src/lib/api/generated/schema.ts --watch"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

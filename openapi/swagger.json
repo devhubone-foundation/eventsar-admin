@@ -2426,6 +2426,21 @@
           "metrics"
         ]
       }
+    },
+    "/api/meta": {
+      "get": {
+        "operationId": "MetaController_getMeta",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Meta returned"
+          }
+        },
+        "summary": "Public meta: enums + feature flags",
+        "tags": [
+          "meta"
+        ]
+      }
     }
   },
   "info": {

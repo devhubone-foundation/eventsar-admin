@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { backendFetch } from "@/lib/api/server-auth";
-import { ApiError } from "@/lib/api/errors";
+import { config } from "@/lib/config";
+import { getSessionToken } from "@/lib/auth/session";
 
 function toBackendPath(pathSegments: string[]) {
   return `/api/admin/${pathSegments.join("/")}`;
@@ -8,38 +8,56 @@ function toBackendPath(pathSegments: string[]) {
 
 async function handler(
   req: Request,
-  { params }: { params: { path: string[] } }
+  ctx: { params: Promise<{ path: string[] }> }
 ) {
-  try {
-    const backendPath = toBackendPath(params.path);
-    const method = req.method as "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
-
-    let body: unknown = undefined;
-
-    if (method !== "GET") {
-      const contentType = req.headers.get("content-type") ?? "";
-      if (contentType.includes("application/json")) {
-        body = await req.json();
-      }
-    }
-
-    const data = await backendFetch<unknown>(backendPath, {
-      method,
-      body,
-    });
-
-    return NextResponse.json(data);
-  } catch (e) {
-    if (e instanceof ApiError) {
-      return NextResponse.json(
-        { message: e.message, details: e.details },
-        { status: e.status }
-      );
-    }
-
-    const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ message: msg }, { status: 500 });
+  const token = await getSessionToken();
+  if (!token) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
+  const { path } = await ctx.params;
+
+  // preserve query string
+  const url = new URL(req.url);
+  const qs = url.search;
+
+  const backendUrl = `${config.apiBaseUrl}${toBackendPath(path)}${qs}`;
+  const method = req.method.toUpperCase();
+
+  // ✅ Read body safely (some clients send Content-Type with empty body)
+  const contentType = req.headers.get("content-type") ?? "";
+  let rawBody = "";
+
+  if (method !== "GET" && method !== "HEAD") {
+    // reading text is safe even if empty
+    rawBody = await req.text();
+  }
+
+  if (rawBody && contentType && !contentType.includes("application/json")) {
+    return NextResponse.json(
+      { message: "Unsupported Content-Type (proxy supports JSON only)" },
+      { status: 415 }
+    );
+  }
+
+  const backendRes = await fetch(backendUrl, {
+    method,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: req.headers.get("accept") ?? "application/json",
+      ...(rawBody ? { "Content-Type": "application/json" } : {}),
+    },
+    body: rawBody || undefined,
+    cache: "no-store",
+  });
+
+  const text = await backendRes.text();
+  const backendContentType = backendRes.headers.get("content-type") ?? "application/json";
+
+  return new NextResponse(text, {
+    status: backendRes.status,
+    headers: { "content-type": backendContentType },
+  });
 }
 
 export const GET = handler;
