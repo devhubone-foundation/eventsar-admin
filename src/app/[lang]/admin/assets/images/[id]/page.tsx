@@ -1,16 +1,17 @@
 // src/app/[lang]/admin/assets/images/[id]/page.tsx
 "use client";
 
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { qk } from "@/lib/api/keys";
 import { deleteImage, getImage } from "@/lib/api/images";
+import { getStorageUrl } from "@/lib/storage";
 
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/components/i18n-provider";
-import { ImageThumb } from "@/components/admin/image-thumb";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ export default function ImageDetailPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: qk.image(id),
@@ -53,13 +55,19 @@ export default function ImageDetailPage() {
   // try to infer fields; adjust later when we type it
   const storage_path = data.storage_path as string;
   const name = (data.name as string | null) ?? null;
+  const imageUrl = getStorageUrl(storage_path);
 
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-lg font-semibold">{name ?? `Image #${id}`}</h1>
-          <div className="text-xs text-muted-foreground break-all">{storage_path}</div>
+        <div className="flex items-start gap-3">
+          <Button variant="outline" onClick={() => router.push(`/${lang}/admin/assets/images`)}>
+            Back
+          </Button>
+          <div>
+            <h1 className="text-lg font-semibold">{name ?? `Image #${id}`}</h1>
+            <div className="text-xs text-muted-foreground break-all">{storage_path}</div>
+          </div>
         </div>
 
         <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
@@ -67,7 +75,22 @@ export default function ImageDetailPage() {
         </Button>
       </div>
 
-      <ImageThumb storage_path={storage_path} alt={name ?? `image ${id}`} />
+      <button
+        type="button"
+        onClick={() => setPreviewOpen(true)}
+        className="block w-full rounded border bg-muted/20 p-2 text-left hover:bg-muted/40 transition-colors"
+        aria-label="Open large image preview"
+      >
+        <div className="relative flex h-[280px] w-full items-center justify-center overflow-hidden rounded bg-background sm:h-[360px]">
+          <Image
+            src={imageUrl}
+            alt={name ?? `image ${id}`}
+            fill
+            className="object-contain"
+            unoptimized
+          />
+        </div>
+      </button>
 
       <div className="rounded border p-4 text-sm space-y-1">
         <div><span className="text-muted-foreground">image_id:</span> {data.image_id}</div>
@@ -95,6 +118,20 @@ export default function ImageDetailPage() {
               {del.isPending ? t("common.loading") : t("images.confirm")}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent size="5xl" className="p-2 sm:p-4">
+          <div className="relative flex h-[70vh] w-full items-center justify-center overflow-hidden rounded bg-background">
+            <Image
+              src={imageUrl}
+              alt={name ?? `image ${id}`}
+              fill
+              className="object-contain"
+              unoptimized
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -12,9 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useI18n } from "@/components/i18n-provider";
 import { Pagination } from "@/components/admin/pagination";
-import { ImageCard } from "@/components/admin/images/image-card";
+import { ImageGridCard } from "@/components/admin/images/image-grid-card";
 
-type Scope = "ALL" | "EVENT" | "SPONSOR" | "GLOBAL";
+type Scope = "ALL" | "EVENTS" | "SPONSORS" | "GLOBAL";
+
+const SCOPE_FOLDERS: Record<Exclude<Scope, "ALL">, string[]> = {
+  EVENTS: ["event", "events"],
+  SPONSORS: ["sponsor", "sponsors"],
+  GLOBAL: ["global"],
+};
 
 export default function ImagesPage() {
   const { lang, t } = useI18n();
@@ -45,12 +51,16 @@ export default function ImagesPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: qk.images({ ...query, scope }),
     queryFn: async () => {
-      // backend doesn't have scope filter on listImages per swagger; we can filter client-side for now
       const res = await listImages(query);
       if (scope === "ALL") return res;
+
+      const allowed = SCOPE_FOLDERS[scope];
       return {
         ...res,
-        items: res.items.filter((it) => it.storage_path.includes("/" + scope.toLowerCase()) || true),
+        items: res.items.filter((it) => {
+          const firstFolder = it.storage_path.split("/").find(Boolean)?.toLowerCase() ?? "";
+          return allowed.includes(firstFolder);
+        }),
       };
     },
   });
@@ -75,7 +85,7 @@ export default function ImagesPage() {
       </div>
 
       <div className="rounded border p-4 space-y-4">
-        <div className="grid gap-4 md:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-6">
           <div className="space-y-1 md:col-span-2">
             <Label>{t("images.search")}</Label>
             <Input value={q} onChange={(e) => (setPage(1), setQ(e.target.value))} placeholder="name / storage_path" />
@@ -87,8 +97,8 @@ export default function ImagesPage() {
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">ALL</SelectItem>
-                <SelectItem value="EVENT">EVENT</SelectItem>
-                <SelectItem value="SPONSOR">SPONSOR</SelectItem>
+                <SelectItem value="EVENTS">EVENTS</SelectItem>
+                <SelectItem value="SPONSORS">SPONSORS</SelectItem>
                 <SelectItem value="GLOBAL">GLOBAL</SelectItem>
               </SelectContent>
             </Select>
@@ -136,7 +146,7 @@ export default function ImagesPage() {
         <>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {data.items.map((img) => (
-              <ImageCard key={img.image_id} lang={lang} image={img} />
+              <ImageGridCard key={img.image_id} lang={lang} image={img} />
             ))}
           </div>
 
