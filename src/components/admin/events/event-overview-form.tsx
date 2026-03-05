@@ -51,7 +51,8 @@ const schema = z.object({
   status: z.string().min(1),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 function isoToDateTimeLocal(value: string | null | undefined): string {
   if (!value) return "";
@@ -124,7 +125,7 @@ export function EventOverviewForm({ event }: { event: any }) {
     ];
   }, []);
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       code: event.code ?? "",
@@ -146,7 +147,7 @@ export function EventOverviewForm({ event }: { event: any }) {
   });
 
   const saveMetaMut = useMutation({
-    mutationFn: async (v: FormValues) =>
+    mutationFn: async (v: FormOutput) =>
       patchEvent(eventId, {
         code: v.code ?? null,
         timezone: v.timezone ?? null,
@@ -181,7 +182,7 @@ export function EventOverviewForm({ event }: { event: any }) {
     onError: (e) => toast.error(e instanceof Error ? e.message : t("events.saveFailed")),
   });
 
-  const onSubmit: SubmitHandler<FormValues> = (v) => {
+  const onSubmit: SubmitHandler<FormOutput> = (v) => {
     saveMetaMut.mutate(v);
     if (v.status && v.status !== originalStatus) {
       if (v.status === "ACTIVE") {
@@ -214,6 +215,8 @@ export function EventOverviewForm({ event }: { event: any }) {
     },
     [form]
   );
+  const environmentRaw = form.watch("environment");
+  const environmentValue = typeof environmentRaw === "string" && environmentRaw ? environmentRaw : ENV_NONE;
 
   return (
     <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -271,7 +274,7 @@ export function EventOverviewForm({ event }: { event: any }) {
         <div className="space-y-1">
           <Label>{t("events.form.environment")}</Label>
           <Select
-            value={form.watch("environment") || ENV_NONE}
+            value={environmentValue}
             onValueChange={(v) => form.setValue("environment", v === ENV_NONE ? "" : v)}
           >
             <SelectTrigger>
