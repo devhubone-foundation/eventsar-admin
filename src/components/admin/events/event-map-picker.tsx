@@ -34,15 +34,10 @@ function isFiniteNumber(v: unknown): v is number {
   return typeof v === "number" && Number.isFinite(v);
 }
 
-function isValidLatLng(lat?: number, lng?: number): lat is number {
-  return (
-    isFiniteNumber(lat) &&
-    isFiniteNumber(lng) &&
-    lat >= -90 &&
-    lat <= 90 &&
-    lng >= -180 &&
-    lng <= 180
-  );
+function getValidLatLng(lat?: number, lng?: number): [number, number] | null {
+  if (!isFiniteNumber(lat) || !isFiniteNumber(lng)) return null;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return [lat, lng];
 }
 
 function roundCoord(v: number): number {
@@ -68,11 +63,13 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
     onPickRef.current = onPick;
   }, [onPick]);
 
+  const validCoords = useMemo<[number, number] | null>(() => getValidLatLng(lat, lng), [lat, lng]);
+
   const initialCenter = useMemo<[number, number]>(() => {
-    if (isValidLatLng(lat, lng)) return [lat, lng];
+    if (validCoords) return validCoords;
     if (preferredCenter) return preferredCenter;
     return SOFIA_CENTER;
-  }, [lat, lng, preferredCenter]);
+  }, [validCoords, preferredCenter]);
 
   useEffect(() => {
     if (!open) return;
@@ -86,7 +83,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
 
       const map = L.map(mapRootRef.current, {
         center: initialCenter,
-        zoom: isValidLatLng(lat, lng) ? 13 : 12,
+        zoom: validCoords ? 13 : 12,
       });
 
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -114,7 +111,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
       mapRef.current = null;
       markerRef.current = null;
     };
-  }, [open, initialCenter, lat, lng]);
+  }, [open, initialCenter, validCoords]);
 
   useEffect(() => {
     if (!open || !mapRef.current) return;
@@ -133,8 +130,8 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
       const L = await import("leaflet");
       if (!mapRef.current) return;
 
-      if (isValidLatLng(lat, lng)) {
-        const point: [number, number] = [lat, lng];
+      if (validCoords) {
+        const point = validCoords;
         if (!markerRef.current) {
           markerRef.current = L.circleMarker(point, {
             radius: 7,
@@ -158,7 +155,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
     };
 
     void syncMarker();
-  }, [open, mapReady, lat, lng]);
+  }, [open, mapReady, validCoords]);
 
   useEffect(() => {
     const canUsePermissions =
@@ -260,11 +257,11 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
     <>
       <div className="space-y-2">
         <Button type="button" variant="outline" onClick={() => setOpen(true)}>
-          {isValidLatLng(lat, lng) ? t("events.map.updatePin") : t("events.map.pickOnMap")}
+          {validCoords ? t("events.map.updatePin") : t("events.map.pickOnMap")}
         </Button>
         <p className="text-xs text-muted-foreground">
-          {isValidLatLng(lat, lng)
-            ? `${t("events.map.selectedPrefix")} ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+          {validCoords
+            ? `${t("events.map.selectedPrefix")} ${validCoords[0].toFixed(6)}, ${validCoords[1].toFixed(6)}`
             : t("events.map.noneSelected")}
         </p>
       </div>
