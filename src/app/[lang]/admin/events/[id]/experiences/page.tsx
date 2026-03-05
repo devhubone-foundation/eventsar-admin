@@ -27,7 +27,7 @@ export default function EventExperiencesPage() {
     queryFn: () => getEvent(eventId),
   });
 
-  const paramsObj = useMemo(
+  const paramsObj = useMemo<NonNullable<Parameters<typeof listEventExperiences>[1]>>(
     () => ({ page: 1, pageSize: 50, sortBy: "sort_order", sortDir: "asc" }),
     []
   );
