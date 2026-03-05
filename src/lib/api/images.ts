@@ -15,6 +15,18 @@ export type ImageListQuery = {
   sortDir?: "asc" | "desc";
 };
 
+export type AdminImage = {
+  image_id: number;
+  name: string | null;
+  storage_path: string;
+  mime_type: string | null;
+  width: number | null;
+  height: number | null;
+  scope?: "EVENT" | "SPONSOR" | "GLOBAL";
+  created_at: string;
+  updated_at: string;
+};
+
 function toQueryString(params: Record<string, string | number | undefined>) {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -43,23 +55,13 @@ export async function listImages(query: ImageListQuery) {
     page: number;
     pageSize: number;
     total: number;
-    items: Array<{
-      image_id: number;
-      name: string | null;
-      storage_path: string;
-      mime_type: string | null;
-      width: number | null;
-      height: number | null;
-      scope?: "EVENT" | "SPONSOR" | "GLOBAL"; // optional in response
-      created_at: string;
-      updated_at: string;
-    }>;
+    items: AdminImage[];
   }>(`/api/admin/images${qs}`);
 }
 
 
 export async function getImage(id: string) {
-  return apiClient<unknown>(`/api/admin/images/${id}`);
+  return apiClient<AdminImage>(`/api/admin/images/${id}`);
 }
 
 export async function deleteImage(id: string) {
