@@ -64,7 +64,8 @@ const schema = z.object({
   allow_scale: z.boolean().optional(),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 function vecDefaults(v: any) {
   return {
@@ -98,7 +99,7 @@ export function ExperienceContentForm({
   const [thumbImg, setThumbImg] = useState<ImagePickerValue>(experience.thumbnail_image ?? null);
   const [trackImg, setTrackImg] = useState<ImagePickerValue>(experience.tracking_image ?? null);
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       slug: experience.slug ?? "",
@@ -160,7 +161,7 @@ export function ExperienceContentForm({
   }, [experienceId, experience.updated_at]);
 
   const mut = useMutation({
-    mutationFn: async (v: FormValues) => {
+    mutationFn: async (v: FormOutput) => {
       // keep your frontend helper rules
       if (needsModel && !v.model_id) throw new Error("Model is required for this experience type.");
 

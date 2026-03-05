@@ -87,7 +87,12 @@ export function SponsorPicker({
     const d = sponsorsQ.data;
     if (!d) return [];
     // tolerant: could be {items: []} or [] directly
-    return Array.isArray(d) ? d : Array.isArray(d.items) ? d.items : [];
+    if (Array.isArray(d)) return d;
+    if (typeof d === "object" && d !== null && "items" in d) {
+      const items = (d as { items?: unknown }).items;
+      return Array.isArray(items) ? items : [];
+    }
+    return [];
   }, [sponsorsQ.data]);
 
   const createMut = useMutation({

@@ -36,7 +36,8 @@ const schema = z.object({
   ),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormInput = z.input<typeof schema>;
+type FormOutput = z.output<typeof schema>;
 
 export function CreateExperienceModal({
                                         open,
@@ -62,7 +63,7 @@ export function CreateExperienceModal({
   const [thumbImg, setThumbImg] = useState<ImagePickerValue>(null);
   const [trackImg, setTrackImg] = useState<ImagePickerValue>(null);
 
-  const form = useForm<FormValues>({
+  const form = useForm<FormInput, any, FormOutput>({
     resolver: zodResolver(schema),
     defaultValues: {
       slug: "",
@@ -89,7 +90,7 @@ export function CreateExperienceModal({
   );
 
   const mut = useMutation({
-    mutationFn: async (v: FormValues) => {
+    mutationFn: async (v: FormOutput) => {
       if (needsModel && !v.model_id) throw new Error("model is required for this experience type");
 
       if (needsTracking) {
