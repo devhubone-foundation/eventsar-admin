@@ -69,7 +69,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
   }, [onPick]);
 
   const initialCenter = useMemo<[number, number]>(() => {
-    if (isValidLatLng(lat, lng)) return [lat, lng];
+    if (isValidLatLng(lat, lng)) return [lat, lng as number];
     if (preferredCenter) return preferredCenter;
     return SOFIA_CENTER;
   }, [lat, lng, preferredCenter]);
@@ -134,7 +134,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
       if (!mapRef.current) return;
 
       if (isValidLatLng(lat, lng)) {
-        const point: [number, number] = [lat, lng];
+        const point: [number, number] = [lat, lng as number];
         if (!markerRef.current) {
           markerRef.current = L.circleMarker(point, {
             radius: 7,
@@ -264,7 +264,7 @@ export function EventMapPicker({ lat, lng, onPick }: EventMapPickerProps) {
         </Button>
         <p className="text-xs text-muted-foreground">
           {isValidLatLng(lat, lng)
-            ? `${t("events.map.selectedPrefix")} ${lat.toFixed(6)}, ${lng.toFixed(6)}`
+            ? `${t("events.map.selectedPrefix")} ${lat.toFixed(6)}, ${(lng as number).toFixed(6)}`
             : t("events.map.noneSelected")}
         </p>
       </div>

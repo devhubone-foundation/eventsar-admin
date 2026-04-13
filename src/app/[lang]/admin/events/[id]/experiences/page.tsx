@@ -28,7 +28,13 @@ export default function EventExperiencesPage() {
   });
 
   const paramsObj = useMemo(
-    () => ({ page: 1, pageSize: 50, sortBy: "sort_order", sortDir: "asc" }),
+    () =>
+      ({
+        page: 1,
+        pageSize: 50,
+        sortBy: "sort_order",
+        sortDir: "asc",
+      }) as const,
     []
   );
 
