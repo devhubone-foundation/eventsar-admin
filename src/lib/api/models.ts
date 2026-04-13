@@ -12,6 +12,17 @@ export type ModelListQuery = {
   sortDir?: "asc" | "desc";
 };
 
+export type AdminModel = {
+  model_id: number;
+  name: string | null;
+  type: string;
+  version: number | null;
+  file_size_bytes: number | null;
+  storage_path: string;
+  created_at: string;
+  updated_at: string;
+};
+
 function toQueryString(params: Record<string, string | number | undefined>) {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -38,23 +49,39 @@ export async function listModels(query: ModelListQuery) {
     page: number;
     pageSize: number;
     total: number;
-    items: Array<{
-      model_id: number;
-      name: string | null;
-      type: string;
-      version: number | null;
-      file_size_bytes: number | null;
-      storage_path: string;
-      created_at: string;
-      updated_at: string;
-    }>;
+    items: AdminModel[];
   }>(`/api/admin/models${qs}`);
 }
 
 export async function getModel(id: string) {
-  return apiClient<any>(`/api/admin/models/${id}`);
+  return apiClient<AdminModel>(`/api/admin/models/${id}`);
 }
 
 export async function deleteModel(id: string) {
   return apiClient<any>(`/api/admin/models/${id}`, { method: "DELETE" });
+}
+
+export async function replaceModelFile(id: number | string, file: File) {
+  const fd = new FormData();
+  fd.append("file", file);
+
+  const res = await fetch(`/api/admin/upload/model/${id}`, {
+    method: "PUT",
+    body: fd,
+    credentials: "include",
+  });
+
+  const text = await res.text();
+  let data: unknown = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text;
+  }
+
+  if (!res.ok) {
+    throw new Error(typeof data === "string" ? data : JSON.stringify(data));
+  }
+
+  return data;
 }
