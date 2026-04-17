@@ -1,12 +1,17 @@
 // src/lib/i18n.ts
 import bg from "@/messages/bg.json";
 import en from "@/messages/en.json";
+import privacyBg from "@/messages/privacy-bg.json";
+import privacyEn from "@/messages/privacy-en.json";
 
 export type Lang = "bg" | "en";
 export const SUPPORTED_LANGS: Lang[] = ["bg", "en"];
 export const DEFAULT_LANG: Lang = "bg";
 
-const DICTS: Record<Lang, Record<string, string>> = { bg, en };
+const DICTS: Record<Lang, Record<string, string>> = {
+  bg: { ...bg, ...privacyBg },
+  en: { ...en, ...privacyEn },
+};
 
 export function getDict(lang: string): Record<string, string> {
   return DICTS[(SUPPORTED_LANGS.includes(lang as Lang) ? lang : DEFAULT_LANG) as Lang];
