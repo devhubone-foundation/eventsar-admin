@@ -49,7 +49,7 @@ export function ExperienceWatermarkForm({ experience, eventSlug }: Props) {
   const { t } = useI18n();
   const qc = useQueryClient();
 
-  const experienceId = experience.experience_id ?? experience.id;
+  const experienceId = experience.experience_id ?? experience.id ?? null;
   const eventId = experience.event_id;
 
   const sourceWatermark = useMemo(
@@ -62,6 +62,10 @@ export function ExperienceWatermarkForm({ experience, eventSlug }: Props) {
 
   const mut = useMutation({
     mutationFn: async () => {
+      if (experienceId == null) {
+        throw new Error("Missing experience id.");
+      }
+
       if (!enabled) {
         return patchExperienceWatermark(experienceId, { watermark_config_id: null });
       }
@@ -77,7 +81,9 @@ export function ExperienceWatermarkForm({ experience, eventSlug }: Props) {
     },
     onSuccess: async () => {
       toast.success(t("common.saved"));
-      await qc.invalidateQueries({ queryKey: qk.experience(experienceId) });
+      if (experienceId != null) {
+        await qc.invalidateQueries({ queryKey: qk.experience(experienceId) });
+      }
 
       if (eventId) {
         await qc.invalidateQueries({ queryKey: qk.eventExperiences(eventId) });

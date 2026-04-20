@@ -2,7 +2,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +20,6 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const { lang, t } = useI18n();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -46,7 +44,8 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.replace(`/${lang}/admin`);
+    // Force a full navigation so middleware sees the fresh httpOnly cookie immediately.
+    window.location.assign(`/${lang}/admin`);
   }
 
   return (
