@@ -1,8 +1,7 @@
-// src/app/[lang]/admin/assets/models/[id]/page.tsx
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { createElement, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -23,6 +22,7 @@ import { listEvents } from "@/lib/api/events";
 import { listEventExperiences } from "@/lib/api/experiences";
 import { qk } from "@/lib/api/keys";
 import { deleteModel, getModel, replaceModelFile } from "@/lib/api/models";
+import { getStorageUrl } from "@/lib/storage";
 
 type EventRow = {
   id: string;
@@ -35,6 +35,12 @@ type ExperienceRow = {
   status: string;
   type: string;
   localizations?: Array<{ language: "EN" | "BG"; display_name: string }>;
+};
+
+type ModelViewerElement = HTMLElement & {
+  autoplay: boolean;
+  loop: boolean;
+  play: () => void;
 };
 
 function pickFromRecord(raw: unknown, key: string): unknown {
@@ -68,25 +74,22 @@ export default function ModelDetailPage() {
   const { lang, t } = useI18n();
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const isBg = lang === "bg";
-  const replaceTitle = isBg ? "Смени файла на модела" : "Replace model file";
-  const replaceDesc = isBg
-    ? "Качете нов .glb файл за това model ID. Записът се запазва, а версията ще се увеличи според бекенда."
-    : "Upload a new .glb file for this model ID. The existing record stays the same and the version will increase on the backend.";
-  const replaceAction = isBg ? "Смени модел" : "Replace model";
-  const replaceNeedFile = isBg ? "Изберете .glb файл" : "Choose a .glb file first";
-  const replaceOk = isBg ? "Файлът на модела е сменен" : "Model file replaced";
-  const replaceFailed = isBg ? "Неуспешна смяна на файла на модела" : "Failed to replace model file";
 
   const router = useRouter();
   const qc = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewReady, setPreviewReady] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [replacementFile, setReplacementFile] = useState<File | null>(null);
+  const modelViewerRef = useRef<ModelViewerElement | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: qk.model(id),
     queryFn: () => getModel(id),
   });
+
+  const modelUrl = data?.storage_path ? getStorageUrl(data.storage_path) : "";
 
   const eventsQuery = useQuery({
     queryKey: qk.events({ page: 1, pageSize: 200, sortBy: "created_at", sortDir: "desc" }),
@@ -97,7 +100,13 @@ export default function ModelDetailPage() {
 
   const experienceQueries = useQueries({
     queries: events.map((event) => ({
-      queryKey: qk.experiences(event.id, { page: 1, pageSize: 100, model_id: id, sortBy: "sort_order", sortDir: "asc" }),
+      queryKey: qk.experiences(event.id, {
+        page: 1,
+        pageSize: 100,
+        model_id: id,
+        sortBy: "sort_order",
+        sortDir: "asc",
+      }),
       queryFn: () =>
         listEventExperiences(event.id, {
           page: 1,
@@ -124,34 +133,74 @@ export default function ModelDetailPage() {
 
   const replace = useMutation({
     mutationFn: async () => {
-      if (!replacementFile) throw new Error(replaceNeedFile);
+      if (!replacementFile) throw new Error(t("models.replaceNeedFile"));
       return replaceModelFile(id, replacementFile);
     },
     onSuccess: async () => {
       setReplacementFile(null);
-      toast.success(replaceOk);
+      setPreviewReady(false);
+      toast.success(t("models.replaced"));
       await Promise.all([
         qc.invalidateQueries({ queryKey: qk.model(id) }),
         qc.invalidateQueries({ queryKey: qk.models(undefined) }),
       ]);
     },
     onError: (e) => {
-      toast.error(e instanceof Error ? e.message : replaceFailed);
+      toast.error(e instanceof Error ? e.message : t("models.replaceFailed"));
     },
   });
+
+  useEffect(() => {
+    if (!previewOpen) return;
+
+    let cancelled = false;
+    setPreviewReady(false);
+    setPreviewError(null);
+
+    import("@google/model-viewer")
+      .then(() => {
+        if (!cancelled) setPreviewReady(true);
+      })
+      .catch(() => {
+        if (!cancelled) setPreviewError(t("models.preview.loadFailed"));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [previewOpen, t]);
+
+  useEffect(() => {
+    if (!previewOpen || !previewReady) return;
+
+    const viewer = modelViewerRef.current;
+    if (!viewer) return;
+
+    let cancelled = false;
+
+    const startAnimation = () => {
+      if (cancelled) return;
+      viewer.autoplay = true;
+      viewer.loop = true;
+
+      requestAnimationFrame(() => {
+        if (!cancelled) viewer.play();
+      });
+    };
+
+    viewer.addEventListener("load", startAnimation);
+    startAnimation();
+
+    return () => {
+      cancelled = true;
+      viewer.removeEventListener("load", startAnimation);
+    };
+  }, [previewOpen, previewReady, modelUrl]);
 
   if (isLoading) return <div className="text-sm text-muted-foreground">{t("common.loading")}</div>;
   if (!data) return <div className="text-sm text-red-600">{t("models.loadFailed")}</div>;
 
   const name = data.name ?? null;
-  const usageTitle = isBg ? "Използвано в изживявания" : "Used in experiences";
-  const usageDescription = isBg
-    ? "Изживяванията по-долу в момента сочат към този модел."
-    : "Experiences below currently reference this model.";
-  const usageEmpty = isBg ? "Няма изживявания, които използват този модел." : "No experiences are using this model.";
-  const usageLoadFailed = isBg ? "Неуспешно зареждане на използването на модела." : "Failed to load model usage.";
-  const eventLabel = isBg ? "Събитие" : "Event";
-  const experiencesLabel = isBg ? "Изживявания" : "Experiences";
 
   const usageGroups = events
     .map((event, index) => ({
@@ -172,9 +221,14 @@ export default function ModelDetailPage() {
           <div className="break-all text-xs text-muted-foreground">{String(data.storage_path ?? "")}</div>
         </div>
 
-        <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
-          {t("models.delete")}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => setPreviewOpen(true)}>
+            {t("models.preview.action")}
+          </Button>
+          <Button variant="destructive" onClick={() => setConfirmOpen(true)}>
+            {t("models.delete")}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-1 rounded border p-4 text-sm">
@@ -200,10 +254,10 @@ export default function ModelDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{replaceTitle}</CardTitle>
+          <CardTitle>{t("models.replaceTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">{replaceDesc}</p>
+          <p className="text-sm text-muted-foreground">{t("models.replaceDesc")}</p>
 
           <FileDropzone
             accept=".glb,model/gltf-binary"
@@ -214,7 +268,7 @@ export default function ModelDetailPage() {
 
           <div className="flex justify-end">
             <Button type="button" onClick={() => replace.mutate()} disabled={replace.isPending || !replacementFile}>
-              {replace.isPending ? t("upload.uploading") : replaceAction}
+              {replace.isPending ? t("upload.uploading") : t("models.replaceAction")}
             </Button>
           </div>
         </CardContent>
@@ -222,27 +276,30 @@ export default function ModelDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{usageTitle}</CardTitle>
+          <CardTitle>{t("models.usage.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">{usageDescription}</p>
+          <p className="text-sm text-muted-foreground">{t("models.usage.description")}</p>
 
           {usageIsLoading ? <div className="text-sm text-muted-foreground">{t("common.loading")}</div> : null}
-          {usageHasError ? <div className="text-sm text-red-600">{usageLoadFailed}</div> : null}
+          {usageHasError ? <div className="text-sm text-red-600">{t("models.usage.loadFailed")}</div> : null}
 
           {!usageIsLoading && !usageHasError && totalUsageCount === 0 ? (
-            <div className="text-sm text-muted-foreground">{usageEmpty}</div>
+            <div className="text-sm text-muted-foreground">{t("models.usage.empty")}</div>
           ) : null}
 
           {!usageIsLoading && !usageHasError && usageGroups.length > 0 ? (
             <div className="space-y-3">
               {usageGroups.map(({ event, items }) => (
-                <div key={event.id} className="rounded border">
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+                <div key={event.id} className="rounded-lg border bg-muted/20">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-muted/40 px-4 py-3">
                     <div className="space-y-1">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        {t("models.usage.eventLabel")}
+                      </div>
                       <div className="font-medium">{event.slug}</div>
                       <div className="text-xs text-muted-foreground">
-                        {eventLabel} #{event.id} - {experiencesLabel}: {items.length}
+                        #{event.id} - {t("models.usage.experiencesLabel")}: {items.length}
                       </div>
                     </div>
 
@@ -251,16 +308,19 @@ export default function ModelDetailPage() {
                     </Button>
                   </div>
 
-                  <div className="divide-y">
+                  <div className="space-y-2 p-3">
                     {items.map((experience) => (
                       <div
                         key={experience.experience_id}
-                        className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm"
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-background px-4 py-3 text-sm shadow-sm"
                       >
-                        <div className="min-w-0">
+                        <div className="min-w-0 space-y-1">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            {t("models.usage.experienceLabel")}
+                          </div>
                           <div className="truncate font-medium">{getExperienceName(experience, lang)}</div>
                           <div className="text-xs text-muted-foreground">
-                            {experience.slug} - {experience.type} - {experience.status}
+                            #{experience.experience_id} - {experience.slug} - {experience.type} - {experience.status}
                           </div>
                         </div>
 
@@ -293,6 +353,45 @@ export default function ModelDetailPage() {
               {del.isPending ? t("common.loading") : t("images.confirm")}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="flex max-w-5xl flex-col overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>{t("models.preview.title")}</DialogTitle>
+            <DialogDescription>{t("models.preview.help")}</DialogDescription>
+          </DialogHeader>
+
+          <p className="rounded border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+            {t("models.preview.warning")}
+          </p>
+
+          <div className="overflow-hidden rounded border bg-muted/30">
+            {previewError ? (
+              <div className="flex h-[70vh] items-center justify-center p-6 text-sm text-red-600">{previewError}</div>
+            ) : previewReady ? (
+              createElement("model-viewer", {
+                key: `${data.model_id}-${data.updated_at ?? data.storage_path}`,
+                ref: modelViewerRef,
+                src: modelUrl,
+                alt: name ?? `Model #${id}`,
+                style: { width: "100%", height: "70vh", background: "transparent" },
+                autoplay: true,
+                loop: true,
+                "camera-controls": "",
+                "touch-action": "pan-y",
+                "shadow-intensity": "1",
+                exposure: "1",
+                "environment-image": "neutral",
+                "interaction-prompt": "none",
+              })
+            ) : (
+              <div className="flex h-[70vh] items-center justify-center p-6 text-sm text-muted-foreground">
+                {t("common.loading")}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

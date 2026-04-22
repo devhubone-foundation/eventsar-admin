@@ -11,6 +11,7 @@
     "gen:api:watch": "openapi-typescript openapi/swagger.json -o src/lib/api/generated/schema.ts --watch"
   },
   "dependencies": {
+    "@google/model-viewer": "^4.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-query-devtools": "^5.91.3",
@@ -29,6 +30,7 @@
     "recharts": "^3.7.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
+    "three": "^0.182.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
