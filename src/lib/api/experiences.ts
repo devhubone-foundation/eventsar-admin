@@ -14,6 +14,7 @@ export async function listEventExperiences(eventId: string, query?: {
   q?: string;
   status?: string;
   type?: string;
+  model_id?: number | string;
   sortBy?: "created_at" | "sort_order" | "slug";
   sortDir?: "asc" | "desc";
 }) {
@@ -23,6 +24,7 @@ export async function listEventExperiences(eventId: string, query?: {
   if (query?.q) sp.set("q", query.q);
   if (query?.status) sp.set("status", query.status);
   if (query?.type) sp.set("type", query.type);
+  if (query?.model_id !== undefined) sp.set("model_id", String(query.model_id));
   if (query?.sortBy) sp.set("sortBy", query.sortBy);
   if (query?.sortDir) sp.set("sortDir", query.sortDir);
 
