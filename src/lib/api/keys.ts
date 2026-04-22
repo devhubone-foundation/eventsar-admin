@@ -22,4 +22,5 @@ export const qk = {
 
   metrics: (eventId: string | number, params?: unknown) => ["metrics", eventId, params] as const,
   meta: () => ["meta"] as const,
+  versionConfig: () => ["versionConfig"] as const,
 };

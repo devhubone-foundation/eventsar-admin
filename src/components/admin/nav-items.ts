@@ -1,5 +1,5 @@
 // src/components/admin/nav-items.ts
-import { Calendar, Image, LayoutDashboard, LineChart, Shapes, Star, Upload } from "lucide-react";
+import { Calendar, Cog, Image, LayoutDashboard, LineChart, Shapes, Star, Upload } from "lucide-react";
 import type { Lang } from "@/lib/i18n";
 
 export type AdminNavItem = {
@@ -15,5 +15,6 @@ export const adminNavItems: AdminNavItem[] = [
   { key: "nav.upload", href: (lang) => `/${lang}/admin/assets/upload`, icon: Upload },
   { key: "nav.assets", href: (lang) => `/${lang}/admin/assets/images`, icon: Image },
   { key: "nav.models", href: (lang) => `/${lang}/admin/assets/models`, icon: Shapes },
-  { key: "nav.metrics", href: (lang) => `/${lang}/admin/metrics`, icon: LineChart }
+  { key: "nav.metrics", href: (lang) => `/${lang}/admin/metrics`, icon: LineChart },
+  { key: "nav.configuration", href: (lang) => `/${lang}/admin/configuration`, icon: Cog }
 ];

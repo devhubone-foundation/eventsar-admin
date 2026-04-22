@@ -90,24 +90,24 @@ export function ModelPicker({
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[calc(100vh-2rem)] max-w-3xl flex-col overflow-hidden p-0">
+          <DialogHeader className="shrink-0 px-6 pt-6">
             <DialogTitle>{t("picker.select") ?? "Select model"}</DialogTitle>
           </DialogHeader>
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex shrink-0 flex-col gap-2 px-6 sm:flex-row sm:flex-wrap">
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder={t("models.searchPlaceholder") ?? "Search name or path"}
-              className="max-w-xs"
+              className="w-full sm:max-w-xs"
             />
 
             <Select
               value={type}
               onValueChange={(v) => setType(v)}
             >
-              <SelectTrigger className="w-[220px]">
+              <SelectTrigger className="w-full sm:w-[220px]">
                 <SelectValue placeholder={t("models.typeAll") ?? "Type (all)"} />
               </SelectTrigger>
               <SelectContent>
@@ -123,48 +123,50 @@ export function ModelPicker({
             </Select>
           </div>
 
-          <div className="rounded border overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/50">
-              <tr>
-                <th className="p-3 text-left">Name</th>
-                <th className="p-3 text-left">Type</th>
-                <th className="p-3 text-left">Version</th>
-                <th className="p-3 text-left">Path</th>
-                <th className="p-3"></th>
-              </tr>
-              </thead>
-              <tbody>
-              {items.map((m) => (
-                <tr key={m.model_id} className="border-t">
-                  <td className="p-3">{m.name}</td>
-                  <td className="p-3">{m.type}</td>
-                  <td className="p-3">{m.version}</td>
-                  <td className="p-3 font-mono text-xs">{m.storage_path}</td>
-                  <td className="p-3 text-right">
-                    <Button
-                      size="sm"
-                      type="button"
-                      onClick={() => {
-                        onChange(m.model_id);
-                        setOpen(false);
-                      }}
-                    >
-                      Select
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+          <div className="min-h-0 flex-1 px-6 pb-6">
+            <div className="h-full overflow-auto rounded border">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 z-10 bg-muted/95 backdrop-blur supports-[backdrop-filter]:bg-muted/75">
+                  <tr>
+                    <th className="p-3 text-left">Name</th>
+                    <th className="p-3 text-left">Type</th>
+                    <th className="p-3 text-left">Version</th>
+                    <th className="p-3 text-left">Path</th>
+                    <th className="p-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((m) => (
+                    <tr key={m.model_id} className="border-t">
+                      <td className="p-3">{m.name}</td>
+                      <td className="p-3">{m.type}</td>
+                      <td className="p-3">{m.version}</td>
+                      <td className="p-3 font-mono text-xs">{m.storage_path}</td>
+                      <td className="p-3 text-right">
+                        <Button
+                          size="sm"
+                          type="button"
+                          onClick={() => {
+                            onChange(m.model_id);
+                            setOpen(false);
+                          }}
+                        >
+                          Select
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
 
-              {items.length === 0 && (
-                <tr>
-                  <td className="p-3 text-muted-foreground" colSpan={5}>
-                    No models found
-                  </td>
-                </tr>
-              )}
-              </tbody>
-            </table>
+                  {items.length === 0 && (
+                    <tr>
+                      <td className="p-3 text-muted-foreground" colSpan={5}>
+                        No models found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
