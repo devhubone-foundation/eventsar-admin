@@ -15,6 +15,7 @@ export async function listEventExperiences(eventId: string, query?: {
   status?: string;
   type?: string;
   model_id?: number | string;
+  image_id?: number | string;
   sortBy?: "created_at" | "sort_order" | "slug";
   sortDir?: "asc" | "desc";
 }) {
@@ -25,11 +26,12 @@ export async function listEventExperiences(eventId: string, query?: {
   if (query?.status) sp.set("status", query.status);
   if (query?.type) sp.set("type", query.type);
   if (query?.model_id !== undefined) sp.set("model_id", String(query.model_id));
+  if (query?.image_id !== undefined) sp.set("image_id", String(query.image_id));
   if (query?.sortBy) sp.set("sortBy", query.sortBy);
   if (query?.sortDir) sp.set("sortDir", query.sortDir);
 
   const qs = sp.toString() ? `?${sp.toString()}` : "";
-  return apiClient<{ page?: number; pageSize?: number; total?: number; items: any[] }>(
+  return apiClient<{ page?: number; pageSize?: number; total?: number; items: unknown[] }>(
     `/api/admin/events/${eventId}/experiences${qs}`
   );
 }
@@ -63,14 +65,14 @@ export async function createExperience(
     watermark_config_id?: number;
   }
 ) {
-  return apiClient<any>(`/api/admin/events/${eventId}/experiences`, {
+  return apiClient<unknown>(`/api/admin/events/${eventId}/experiences`, {
     method: "POST",
     body: payload,
   });
 }
 
 export async function getExperience(id: string) {
-  return apiClient<any>(`/api/admin/experiences/${id}`);
+  return apiClient<unknown>(`/api/admin/experiences/${id}`);
 }
 
 export async function patchExperienceWatermark(

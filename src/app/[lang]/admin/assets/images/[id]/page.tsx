@@ -1,8 +1,9 @@
 // src/app/[lang]/admin/assets/images/[id]/page.tsx
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -20,22 +21,93 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { qk } from "@/lib/api/keys";
-import { deleteImage, getImage, replaceImageFile } from "@/lib/api/images";
+import { deleteImage, getImage, getImageUsage, replaceImageFile, type ImageUsageRecord } from "@/lib/api/images";
 import { getStorageUrl } from "@/lib/storage";
+
+function getNumberFromDetails(details: Record<string, unknown> | null | undefined, key: string) {
+  const value = details?.[key];
+  return typeof value === "number" ? value : null;
+}
+
+function getStringFromDetails(details: Record<string, unknown> | null | undefined, key: string) {
+  const value = details?.[key];
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+function getUsageTypeLabel(record: ImageUsageRecord, t: (key: string) => string) {
+  const labels: Record<string, string> = {
+    "event.logo": t("images.usage.type.eventLogo"),
+    "event.background": t("images.usage.type.eventBackground"),
+    "event.watermark": t("images.usage.type.eventWatermark"),
+    "experience.thumbnail": t("images.usage.type.experienceThumbnail"),
+    "experience.tracking": t("images.usage.type.experienceTracking"),
+    "experience.watermark": t("images.usage.type.experienceWatermark"),
+    "sponsor.logo": t("images.usage.type.sponsorLogo"),
+    "sponsor.watermark": t("images.usage.type.sponsorWatermark"),
+    "experience_sponsor.watermark": t("images.usage.type.experienceSponsorWatermark"),
+  };
+
+  return labels[record.usage_type] ?? record.usage_type;
+}
+
+function getEntityTypeLabel(record: ImageUsageRecord, t: (key: string) => string) {
+  const labels: Record<string, string> = {
+    event: t("images.usage.entity.event"),
+    experience: t("images.usage.entity.experience"),
+    sponsor: t("images.usage.entity.sponsor"),
+    experience_sponsor: t("images.usage.entity.experienceSponsor"),
+  };
+
+  return labels[record.entity_type] ?? record.entity_type;
+}
+
+function getUsageTarget(record: ImageUsageRecord, lang: string, t: (key: string) => string) {
+  if (record.entity_type === "event") {
+    return {
+      href: `/${lang}/admin/events/${record.entity_id}`,
+      label: t("events.open"),
+    };
+  }
+
+  if (record.entity_type === "experience") {
+    return {
+      href: `/${lang}/admin/experiences/${record.entity_id}`,
+      label: t("experiences.open"),
+    };
+  }
+
+  if (record.entity_type === "experience_sponsor") {
+    const experienceId = getNumberFromDetails(record.details, "experience_id");
+    if (experienceId) {
+      return {
+        href: `/${lang}/admin/experiences/${experienceId}`,
+        label: t("experiences.open"),
+      };
+    }
+  }
+
+  return null;
+}
+
+function getUsageMetaLines(record: ImageUsageRecord, t: (key: string) => string) {
+  const lines: string[] = [];
+  const eventSlug = getStringFromDetails(record.details, "event_slug");
+  const experienceSlug = getStringFromDetails(record.details, "experience_slug");
+  const experienceId = getNumberFromDetails(record.details, "experience_id");
+
+  if (eventSlug) lines.push(`${t("images.usage.metaEvent")}: ${eventSlug}`);
+  if (experienceSlug) lines.push(`${t("images.usage.metaExperience")}: ${experienceSlug}`);
+  if (record.entity_type === "experience_sponsor" && experienceId) {
+    lines.push(`${t("images.usage.metaExperienceId")}: ${experienceId}`);
+  }
+
+  return lines;
+}
 
 export default function ImageDetailPage() {
   const { lang, t } = useI18n();
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const isBg = lang === "bg";
-  const replaceTitle = isBg ? "Смени файла на изображението" : "Replace image file";
-  const replaceDesc = isBg
-    ? "Качете нов файл за това image ID. Записът се запазва, а прегледът ще се обнови след успешно качване."
-    : "Upload a new file for this image ID. The existing record stays the same and the preview will refresh after upload.";
-  const replaceAction = isBg ? "Смени изображение" : "Replace image";
-  const replaceNeedFile = isBg ? "Изберете файл с изображение" : "Choose an image file first";
-  const replaceOk = isBg ? "Файлът на изображението е сменен" : "Image file replaced";
-  const replaceFailed = isBg ? "Неуспешна смяна на файла на изображението" : "Failed to replace image file";
 
   const router = useRouter();
   const qc = useQueryClient();
@@ -46,6 +118,12 @@ export default function ImageDetailPage() {
   const { data, isLoading } = useQuery({
     queryKey: qk.image(id),
     queryFn: () => getImage(id),
+  });
+
+  const usageQuery = useQuery({
+    queryKey: ["imageUsage", String(id)],
+    queryFn: () => getImageUsage(id),
+    enabled: Boolean(id),
   });
 
   const del = useMutation({
@@ -62,28 +140,30 @@ export default function ImageDetailPage() {
 
   const replace = useMutation({
     mutationFn: async () => {
-      if (!replacementFile) throw new Error(replaceNeedFile);
+      if (!replacementFile) throw new Error(t("images.replaceNeedFile"));
       return replaceImageFile(id, replacementFile);
     },
     onSuccess: async () => {
       setReplacementFile(null);
-      toast.success(replaceOk);
+      toast.success(t("images.replaced"));
       await Promise.all([
         qc.invalidateQueries({ queryKey: qk.image(id) }),
         qc.invalidateQueries({ queryKey: qk.images(undefined) }),
+        qc.invalidateQueries({ queryKey: ["imageUsage", String(id)] }),
       ]);
     },
     onError: (e) => {
-      toast.error(e instanceof Error ? e.message : replaceFailed);
+      toast.error(e instanceof Error ? e.message : t("images.replaceFailed"));
     },
   });
 
   if (isLoading) return <div className="text-sm text-muted-foreground">{t("common.loading")}</div>;
   if (!data) return <div className="text-sm text-red-600">{t("images.loadFailed")}</div>;
 
-  const storage_path = data.storage_path as string;
+  const storagePath = data.storage_path as string;
   const name = (data.name as string | null) ?? null;
-  const imageUrl = getStorageUrl(storage_path);
+  const imageUrl = getStorageUrl(storagePath);
+  const usageItems = usageQuery.data ?? [];
 
   return (
     <div className="space-y-4">
@@ -94,7 +174,7 @@ export default function ImageDetailPage() {
           </Button>
           <div>
             <h1 className="text-lg font-semibold">{name ?? `Image #${id}`}</h1>
-            <div className="break-all text-xs text-muted-foreground">{storage_path}</div>
+            <div className="break-all text-xs text-muted-foreground">{storagePath}</div>
           </div>
         </div>
 
@@ -137,10 +217,10 @@ export default function ImageDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{replaceTitle}</CardTitle>
+          <CardTitle>{t("images.replaceTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">{replaceDesc}</p>
+          <p className="text-sm text-muted-foreground">{t("images.replaceDesc")}</p>
 
           <FileDropzone
             accept="image/png,image/jpeg,image/webp,image/*"
@@ -151,9 +231,75 @@ export default function ImageDetailPage() {
 
           <div className="flex justify-end">
             <Button type="button" onClick={() => replace.mutate()} disabled={replace.isPending || !replacementFile}>
-              {replace.isPending ? t("upload.uploading") : replaceAction}
+              {replace.isPending ? t("upload.uploading") : t("images.replaceAction")}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("images.usage.title")}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">{t("images.usage.description")}</p>
+
+          {usageQuery.isLoading ? <div className="text-sm text-muted-foreground">{t("common.loading")}</div> : null}
+          {usageQuery.error ? <div className="text-sm text-red-600">{t("images.usage.loadFailed")}</div> : null}
+
+          {!usageQuery.isLoading && !usageQuery.error && usageItems.length === 0 ? (
+            <div className="text-sm text-muted-foreground">{t("images.usage.empty")}</div>
+          ) : null}
+
+          {!usageQuery.isLoading && !usageQuery.error && usageItems.length > 0 ? (
+            <div className="space-y-2">
+              {usageItems.map((record, index) => {
+                const target = getUsageTarget(record, lang, t);
+                const metaLines = getUsageMetaLines(record, t);
+                const title = typeof record.name === "string" && record.name.trim() ? record.name : `#${record.entity_id}`;
+
+                return (
+                  <div
+                    key={`${record.usage_type}:${record.entity_type}:${record.entity_id}:${index}`}
+                    className="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-background px-4 py-3 text-sm shadow-sm"
+                  >
+                    <div className="min-w-0 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border bg-muted px-2 py-0.5 text-xs font-medium">
+                          {getUsageTypeLabel(record, t)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {getEntityTypeLabel(record, t)} #{record.entity_id}
+                        </span>
+                      </div>
+
+                      <div className="font-medium">{title}</div>
+
+                      {metaLines.length > 0 ? (
+                        <div className="space-y-1 text-xs text-muted-foreground">
+                          {metaLines.map((line) => (
+                            <div key={line}>{line}</div>
+                          ))}
+                        </div>
+                      ) : null}
+
+                      {record.details ? (
+                        <div className="text-xs text-muted-foreground">
+                          {t("images.usage.metaDetails")}: {JSON.stringify(record.details)}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    {target ? (
+                      <Button asChild size="sm" variant="outline">
+                        <Link href={target.href}>{target.label}</Link>
+                      </Button>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

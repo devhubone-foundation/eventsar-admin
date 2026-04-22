@@ -27,6 +27,14 @@ export type AdminImage = {
   updated_at: string;
 };
 
+export type ImageUsageRecord = {
+  usage_type: string;
+  entity_type: string;
+  entity_id: number;
+  name?: string | null;
+  details?: Record<string, unknown> | null;
+};
+
 function toQueryString(params: Record<string, string | number | undefined>) {
   const sp = new URLSearchParams();
   for (const [k, v] of Object.entries(params)) {
@@ -62,6 +70,10 @@ export async function listImages(query: ImageListQuery) {
 
 export async function getImage(id: string) {
   return apiClient<AdminImage>(`/api/admin/images/${id}`);
+}
+
+export async function getImageUsage(id: string | number) {
+  return apiClient<ImageUsageRecord[]>(`/api/admin/images/${id}/usage`);
 }
 
 export async function deleteImage(id: string) {
