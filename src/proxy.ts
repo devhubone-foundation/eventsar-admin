@@ -1,9 +1,8 @@
-// src/middleware.ts
+// src/proxy.ts
 import { NextResponse, type NextRequest } from "next/server";
-import { DEFAULT_LANG, SUPPORTED_LANGS, type Lang } from "@/lib/i18n";
-import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
-const PUBLIC_ADMIN_PATH_SUFFIXES = ["/admin/login"];
+import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { DEFAULT_LANG, SUPPORTED_LANGS, type Lang } from "@/lib/i18n";
 
 function getPreferredLang(req: NextRequest): Lang {
   const cookieLang = req.cookies.get("lang")?.value;
@@ -16,17 +15,15 @@ function hasLangPrefix(pathname: string): boolean {
   return SUPPORTED_LANGS.includes(seg as Lang);
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Skip Next internals + API routes
   if (pathname.startsWith("/_next") || pathname.startsWith("/api")) {
     return NextResponse.next();
   }
 
   const preferred = getPreferredLang(req);
 
-  // If no lang prefix, redirect by rules
   if (!hasLangPrefix(pathname)) {
     const url = req.nextUrl.clone();
 
@@ -44,15 +41,12 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // has lang
   const parts = pathname.split("/").filter(Boolean);
   const lang = parts[0] as Lang;
 
-  // persist lang cookie (server-side) so "no lang path" redirect uses last choice
   const res = NextResponse.next();
   res.cookies.set({ name: "lang", value: lang, path: "/", sameSite: "lax" });
 
-  // admin protection: /{lang}/admin/*
   const isAdmin = parts[1] === "admin";
   if (isAdmin) {
     const isLogin = pathname.endsWith("/admin/login");

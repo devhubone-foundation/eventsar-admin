@@ -8,6 +8,59 @@ export type ExperienceWatermarkDto = {
   opacity?: number;
 };
 
+export type EventExperienceListItem = {
+  experience_id: number;
+  slug: string;
+  type: string;
+  status: string;
+  sort_order: number;
+  thumbnail_image?: { storage_path: string } | null;
+  localizations?: Array<{ language: "EN" | "BG"; display_name: string }>;
+  watermark_config?: {
+    image_id?: number;
+    image?: { image_id?: number } | null;
+  } | null;
+  thumbnail_image_id?: number | null;
+  tracking_image_id?: number | null;
+};
+
+export type EventExperienceListResponse = {
+  page?: number;
+  pageSize?: number;
+  total?: number;
+  items: EventExperienceListItem[];
+};
+
+export type ExperienceDetail = {
+  experience_id?: number;
+  id?: number;
+  event_id?: number | string;
+  slug?: string;
+  type?: string;
+  status?: string;
+  watermark_config_id?: number | null;
+  updated_at?: string | null;
+  watermark_config?: {
+    image_id?: number;
+    image?: { image_id?: number } | null;
+    position?: "bottom_right" | "bottom_left" | "top_right" | "top_left" | "center";
+    scale?: number;
+    opacity?: number;
+  } | null;
+  localizations?: Array<{ id?: number; experience_id?: number; language: "EN" | "BG"; display_name: string }>;
+  Experience_Localization?: Array<{ id?: number; experience_id?: number; language: "EN" | "BG"; display_name: string }>;
+  sponsors?: unknown[];
+  experience_sponsors?: unknown[];
+  Experience_Sponsors?: unknown[];
+  [key: string]: unknown;
+};
+
+export type CreateExperienceResponse = {
+  experience_id?: number;
+  id?: number;
+  [key: string]: unknown;
+};
+
 export async function listEventExperiences(eventId: string, query?: {
   page?: number;
   pageSize?: number;
@@ -31,7 +84,7 @@ export async function listEventExperiences(eventId: string, query?: {
   if (query?.sortDir) sp.set("sortDir", query.sortDir);
 
   const qs = sp.toString() ? `?${sp.toString()}` : "";
-  return apiClient<{ page?: number; pageSize?: number; total?: number; items: unknown[] }>(
+  return apiClient<EventExperienceListResponse>(
     `/api/admin/events/${eventId}/experiences${qs}`
   );
 }
@@ -65,14 +118,14 @@ export async function createExperience(
     watermark_config_id?: number;
   }
 ) {
-  return apiClient<unknown>(`/api/admin/events/${eventId}/experiences`, {
+  return apiClient<CreateExperienceResponse>(`/api/admin/events/${eventId}/experiences`, {
     method: "POST",
     body: payload,
   });
 }
 
 export async function getExperience(id: string) {
-  return apiClient<unknown>(`/api/admin/experiences/${id}`);
+  return apiClient<ExperienceDetail>(`/api/admin/experiences/${id}`);
 }
 
 export async function patchExperienceWatermark(

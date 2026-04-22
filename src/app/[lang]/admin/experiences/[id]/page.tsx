@@ -41,12 +41,16 @@ export default function ExperienceDetailPage() {
   });
 
   const exp = expQ.data;
+  const experienceEventId = exp?.event_id;
 
   // fetch event slug for uploads in pickers (needs exp.event_id)
   const eventQ = useQuery({
-    queryKey: exp?.event_id ? qk.event(exp.event_id) : ["event", "missing"],
-    queryFn: () => getEvent(exp.event_id),
-    enabled: Boolean(exp?.event_id),
+    queryKey: experienceEventId ? qk.event(experienceEventId) : ["event", "missing"],
+    queryFn: () => {
+      if (!experienceEventId) throw new Error("Missing event id");
+      return getEvent(String(experienceEventId));
+    },
+    enabled: Boolean(experienceEventId),
   });
 
   const eventSlug = String(eventQ.data?.slug ?? "");
